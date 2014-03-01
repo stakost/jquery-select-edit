@@ -1,0 +1,23 @@
+{
+  "name": "jquery-select-edit",
+  "version": "0.0.1",
+  "homepage": "https://github.com/stakost/jquery-select-edit",
+  "authors": [
+    "stakost <aa@bbbbb.cc>"
+  ],
+  "description": "Custom select editable",
+  "main": "jquery.select-edit.min.js",
+  "keywords": [
+    "jquery",
+    "select",
+    "edit"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
