@@ -1,0 +1,21 @@
+body {
+  background-color: #fff;
+  padding: 20px;
+  font-size: 14px;
+  font-family: Helvetica Neue, Arial, Helvetica, sans-serif;
+  line-height: 1.4;
+}
+
+h1 {
+  font-size: 21px;
+  font-weight: bold;
+  margin: 0 0 1em;
+}
+
+p {
+  margin: 0 0 1em;
+}
+
+form {
+  margin: 0;
+}

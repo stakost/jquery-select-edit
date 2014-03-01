@@ -1,0 +1,19 @@
+$btn-border-radius: 3px;
+$btn-default-color: #767b90;
+
+@mixin box-shadow($shadow...) {
+    -webkit-box-shadow: $shadow;
+    box-shadow: $shadow;
+    }
+
+@mixin user-select($select) {
+    -webkit-user-select: $select;
+    -moz-user-select: $select;
+    -ms-user-select: $select;
+    user-select: $select;
+    }
+
+@mixin transition($transition...) {
+    -webkit-transition: $transition;
+    transition: $transition;
+    }

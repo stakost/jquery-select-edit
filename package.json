@@ -1,0 +1,22 @@
+{
+    "author": "Konstantin Stasenko",
+    "name": "jquery-select-edit",
+    "version": "0.0.1",
+    "homepage": "https://github.com/stakost/jquery-select-edit",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/stakost/jquery-select-edit.git"
+    },
+    "scripts": {
+        "start": "grunt",
+        "postinstall": "npm start"
+    },
+    "dependencies": {
+        "grunt": "latest",
+        "grunt-contrib-watch": "latest",
+        "grunt-contrib-connect": "latest",
+        "grunt-contrib-compass": "latest",
+        "grunt-contrib-uglify": "latest",
+        "grunt-contrib-copy": "latest"
+    }
+}

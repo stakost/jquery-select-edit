@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+<head>
+    <title>Demo select-edit</title>
+    <link href="common.css" rel="stylesheet" />
+    <link href="jquery.select-edit.css" rel="stylesheet" />
+</head>
+<body>
+
+<p>
+    <select class="select-edit" autocomplete="off" placeholder="Укажите путь" data-tooltip="All devices">
+        <option value="1">iPhone</option>
+        <option value="2">iPod</option>
+        <option value="3" selected="true">Android</option>
+        <option value="4">Windows</option>
+    </select>
+</p>
+<p>
+    <select class="select-edit" autocomplete="off" placeholder="Выберите страну" multiple size="1">
+        <option value="1">Россия</option>
+        <option value="2">Украина</option>
+        <option value="12" selected="true">США</option>
+        <option value="22" selected="true">Канада</option>
+    </select>
+    <input tabindex="0">
+    <input tabindex="0">
+    <input tabindex="0">
+</p>
+
+<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="jquery.select-edit.min.js"></script>
+<script>
+    $('.select-edit').selectEdit();
+</script>
+
+</body>
+</html>
