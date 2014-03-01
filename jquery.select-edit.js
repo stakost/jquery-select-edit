@@ -1,3 +1,12 @@
+/**
+ * Select-edit 0.0.1
+ * jQuery plugin for custom select editable.
+ *
+ * Full source at https://github.com/stakost/jquery-select-edit
+ *
+ * @author stakost <aa@bbbbb.cc>
+ */
+
 !function ($) {
     'use strict';
 
@@ -46,6 +55,7 @@
         this.$select.attr('autocomplete', 'off');
         this.isMultiple = this.$select.prop('multiple');
 
+        this._fixSelect();
         this.initialize();
     };
 
@@ -60,7 +70,7 @@
         tmplTooltip: '<div role="tooltip"></div>',
         tmplList: '<div role="list"></div>',
         tmplListbox: '<div role="listbox"></div>',
-        tmplListitem: '<div role="listitem"></div>',
+        tmplListitem: '<div role="listitem"%attrs%>%text%</div>',
 
         offsetTop: 3,
 
@@ -205,14 +215,15 @@
          * @returns {boolean}
          */
         hide: function () {
+            this.isOpen = false;
+            this._eventsGroup();
+
             this.$group
                 .removeClass(this.options.classGroupShow)
                 .offset({
                     top: 0,
                     left: 0
                 }).detach();
-            this.isOpen = false;
-            this._eventsGroup();
         },
 
         /**
@@ -276,6 +287,8 @@
                     break;
                 case KEY_CODE_ENTER:
                     this._toggleListItemHover();
+                    !this.isMultiple && this.hide();
+
                     break;
             }
         },
@@ -373,7 +386,10 @@
                 $item = $(e.currentTarget),
                 isSelected = !$item.hasClass(classSelected);
 
-            !this.isMultiple && this.getListItems().removeClass(classSelected);
+            if (!this.isMultiple) {
+                this.getListItems().removeClass(classSelected);
+                this.hide();
+            }
 
             this._switchListItem($item, isSelected)
 //            this._switchOption($item.data('value'), isSelected);
@@ -399,7 +415,7 @@
          */
         _switchOption: function (value, selected) {
             var $option = this.$select.find('option[value="' + value + '"]');
-            selected && $option.attr('selected','selected');
+            $option.prop('selected', selected);
             !selected && $option.removeAttr('selected');
         },
 
@@ -508,31 +524,49 @@
          * @private
          */
         _generateItems: function () {
-            var options = this.options,
-                $options = $(),
-                $item = this.$listItem;
-
             if (this.isGenerateItems) {
                 return true;
             }
+            var options = this.options,
+                $options = $(),
+                $item = this.$listItem,
+                domItem = $item[0],
+                template,
+                html = '',
+                tmp = document.createElement('div'),
 
-            this.$select.contents().each(function () {
-                var $this = $(this),
-                    $option;
+                $childs = this.$select.contents('option');
 
-                if ($this.is('option')) {
-                    $option = $item
-                        .clone()
-                        .attr('data-value', $this.val())
-                        .text($this.text());
+            tmp.appendChild(domItem);
+            template = tmp.innerHTML;
 
-                    $this.is(':selected') && $option.addClass(options.classListitemSelected);
-                    $options = $options.add($option);
+            $childs.each2(function () {
+                var text = this.innerHTML,
+                    value = this.value,
+                    itemHtml = template;
+
+                if (!text) {
+                    return true;
                 }
+
+                itemHtml = itemHtml.replace('%attrs%',' data-value="' + value + '"');
+                itemHtml = itemHtml.replace('%text%', text);
+
+                html += itemHtml;
             });
 
-            this.$listItems = $options;
-            this.$list.html($options);
+            this.$listItems = $(html);
+            this.$list.html(this.$listItems);
+
+            this._actualizeListItems();
+            this.isGenerateItems = true;
+        },
+
+        _fixSelect: function () {
+            var $emptyOption = this.$select.find(':not([value])');
+            if (!$emptyOption.length) {
+                this.$select.prepend('<option selected="selected"></option>');
+            }
         }
     };
 
@@ -567,6 +601,20 @@
                 fn.call(scope, this[i], i, this);
             }
         }
+    }
+
+    if (typeof $.fn.each2 == "undefined") {
+        $.extend($.fn, {
+            each2: function (c) {
+                var j = $([0]), i = -1, l = this.length;
+                while (
+                    ++i < l
+                        && (j.context = j[0] = this[i])
+                        && c.call(j[0], i, j) !== false //"this"=DOM, i=index, j=jQuery object
+                    );
+                return this;
+            }
+        });
     }
 
 }(jQuery);

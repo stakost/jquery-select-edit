@@ -21,6 +21,7 @@ $background-color: #e6ecf6;
 
         padding: 2px 20px 3px;
         font-size: 17px;
+        height: 24px;
         line-height: 1.4;
         border-radius: 3px;
 
@@ -51,14 +52,36 @@ $background-color: #e6ecf6;
             }
 
         &.select-edit__select_empty {
-            color: lighten($text-color, 5%);
-            background-color: lighten($background-color, 5%);
+            color: rgba($text-color, 0.5);
+//            background-color: lighten($background-color, 5%);
             }
         }
+        .select-edit__select__current {
+            display: block;
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            }
 
     select.select-edit {
         overflow: hidden;
         width: auto;
+        height: 29px;
+        color: rgba($text-color, 0.5);
+        max-width: 200px;
+        opacity: 0.2;
+
+        option,
+        ::selection,
+        ::-moz-selection {
+            background-color: transparent;
+            visibility: hidden;
+            }
+
+//        &[multiple] {
+//            height: 1em;
+//            }
         }
 
 .select-edit-hide {
