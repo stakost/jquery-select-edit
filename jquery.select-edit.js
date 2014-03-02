@@ -35,6 +35,7 @@
         CLASS_LIST_ITEM_HOVER = CLASS_LIST_ITEM + '_hover',
         CLASS_LIST_ITEM_SELECTED = CLASS_LIST_ITEM + '_selected',
 
+        DROP_MARGIN = 5,
         DROP_MODS = {
             'up': CLASS_DROP_SHOW_UP,
             'down': CLASS_DROP_SHOW_DOWN
@@ -224,19 +225,23 @@
          * Задает правильную позицию для списка
          */
         updateListPosition: function () {
-            var position = this.$content.offset(),
+            var $window = $(window),
+                position = this.$content.offset(),
                 listHeight = this.$group.outerHeight(),
                 windowHeight = $(window).height(),
+                documentScroll = $window.scrollTop(),
                 freeSpace = windowHeight - position.top,
                 offsetTop = 0,
-                dropMod = '';
+                dropMod = '',
+                hasTopSpace = (position.top - documentScroll) > listHeight,
+                hasBottomSpace = freeSpace > listHeight;
 
-            if (freeSpace < listHeight) {
-                offsetTop = -listHeight;
+            if (!hasBottomSpace && hasTopSpace) {
+                offsetTop = -listHeight - DROP_MARGIN;
 
                 dropMod = 'up';
             } else {
-                offsetTop = this.$content.outerHeight();
+                offsetTop = this.$content.outerHeight() + DROP_MARGIN;
 
                 dropMod = 'down';
             }
