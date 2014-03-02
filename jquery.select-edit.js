@@ -201,6 +201,17 @@
         },
 
         /**
+         * Задает правильную позицию для списка
+         */
+        updateListPosition: function () {
+            var position = this.$content.offset();
+
+            position.top += this.$content.outerHeight() + this.options.offsetTop;
+
+            this.$group.offset(position);
+        },
+
+        /**
          * Показать список
          * @returns {boolean}
          */
@@ -209,19 +220,16 @@
                 return true;
             }
 
-            var position = this.$content.position();
-
             // оповестить открытые списки
             $document.trigger('event-show.' + _NAME_);
 
-            position.top += this.$content.outerHeight() + this.options.offsetTop;
-
             this._generateItems();
             this.$group
-                .offset(position)
                 .addClass(this.options.classGroupShow)
                 .appendTo(document.body)
                 .focus();
+
+            this.updateListPosition();
 
             this.isOpen = true;
             this._eventsGroup();
