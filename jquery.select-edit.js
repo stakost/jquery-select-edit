@@ -1,5 +1,5 @@
 /**
- * Select-edit 0.0.1
+ * Select-edit 1.0.3
  * jQuery plugin for custom select editable.
  *
  * Full source at https://github.com/stakost/jquery-select-edit
@@ -439,17 +439,21 @@
          */
         _switchOption: function (value, selected) {
             var $option = this.$select.find('option[value="' + value + '"]'),
-                callItemToggle = this.options.callItemToggle;
+                callItemToggle = this.options.callItemToggle,
+                triggerData = {
+                    value: value,
+                    selected: selected
+                };
 
             $option.prop('selected', selected);
             !selected && $option.removeAttr('selected');
 
-            _isFunction(callItemToggle) && callItemToggle({
-                value: value,
-                selected: selected
-            });
+            _isFunction(callItemToggle) && callItemToggle(triggerData);
 
-            this.$select.trigger('change');
+
+            this.$select
+                .trigger('change')
+                .trigger('itemToggle', triggerData);
         },
 
         /**

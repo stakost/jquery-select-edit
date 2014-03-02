@@ -2045,6 +2045,9 @@
     })
     .on('change', function () {
         console.log('outside event change', $(this).val());
+    })
+    .on('itemToggle', function (e, item) {
+        console.log('event listener change', item);
     });
 </script>
 
