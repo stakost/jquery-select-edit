@@ -1,5 +1,5 @@
 /**
- * Select-edit 1.0.5
+ * Select-edit 1.0.6
  * jQuery plugin for custom select editable.
  *
  * Full source at https://github.com/stakost/jquery-select-edit
@@ -72,10 +72,10 @@
         tmplListbox: '<div role="listbox"></div>',
         tmplListitem: '<div role="listitem"%attrs%>%text%</div>',
 
-        offsetTop: 3,
-
-        autohide: true,
         placeholderTitle: null,
+
+        // вставлять открывающийся список в боди
+        appendBody: false,
 
         classHide: CLASS + '-hide',
         classForm: CLASS,
@@ -205,11 +205,11 @@
          * Задает правильную позицию для списка
          */
         updateListPosition: function () {
-            var position = this.$content.offset();
-
-            position.top += this.$content.outerHeight() + this.options.offsetTop;
-
-            this.$group.offset(position);
+            if (this.options.appendBody) {
+                var position = this.$content.offset();
+                position.top += this.$content.outerHeight();
+                this.$group.offset(position);
+            }
         },
 
         /**
@@ -227,7 +227,7 @@
             this._generateItems();
             this.$group
                 .addClass(this.options.classGroupShow)
-                .appendTo(document.body)
+                .appendTo((this.options.appendBody && document.body) || this.$content)
                 .focus();
 
             this.updateListPosition();
@@ -246,10 +246,13 @@
 
             this.$group
                 .removeClass(this.options.classGroupShow)
-                .offset({
-                    top: 0,
-                    left: 0
-                }).detach();
+
+            this.options.appendBody && this.$group.offset({
+                top: 0,
+                left: 0
+            });
+
+            this.$group.detach();
         },
 
         /**
@@ -313,7 +316,7 @@
                     break;
                 case KEY_CODE_ENTER:
                     this._toggleListItemHover();
-                    this.options.autohide && this.hide();
+                    !this.isMultiple && this.hide();
 
                     break;
             }
@@ -414,9 +417,8 @@
 
             if (!this.isMultiple) {
                 this.getListItems().removeClass(classSelected);
+                this.hide();
             }
-
-            options.autohide && this.hide();
 
             this._switchListItem($item, isSelected);
         },
