@@ -74,6 +74,8 @@
 
         offsetTop: 3,
 
+        placeholderTitle: null,
+
         classHide: CLASS + '-hide',
         classForm: CLASS,
         classButton: CLASS_BUTTON,
@@ -87,7 +89,9 @@
         classListbox: CLASS_LISTBOX,
         classListitem: CLASS_LIST_ITEM,
         classListitemHover: CLASS_LIST_ITEM_HOVER,
-        classListitemSelected: CLASS_LIST_ITEM_SELECTED
+        classListitemSelected: CLASS_LIST_ITEM_SELECTED,
+
+        callItemToggle: null
     };
 
     _Constructor.prototype = {
@@ -177,7 +181,7 @@
          * @private
          */
         _actualizeButtonText: function () {
-            var text = this._getSelectedText();
+            var text = this.options.placeholderTitle || this._getSelectedText();
             this.$buttonText.text(text || this.$select.attr('placeholder'));
 
             this.$button.toggleClass(this.options.classButtonEmpty, !text)
@@ -426,9 +430,16 @@
          * @private
          */
         _switchOption: function (value, selected) {
-            var $option = this.$select.find('option[value="' + value + '"]');
+            var $option = this.$select.find('option[value="' + value + '"]'),
+                callItemToggle = this.options.callItemToggle;
+
             $option.prop('selected', selected);
             !selected && $option.removeAttr('selected');
+
+            _isFunction(callItemToggle) && callItemToggle({
+                value: value,
+                selected: selected
+            });
 
             this.$select.trigger('change');
         },
