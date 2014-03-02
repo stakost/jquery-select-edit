@@ -2029,7 +2029,11 @@
 <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 <script src="jquery.select-edit.min.js"></script>
 <script>
-    $('.select-edit').selectEdit();
+    $('.select-edit')
+    .selectEdit()
+    .on('change', function () {
+        console.log('outside event change', $(this).val());
+    });
 </script>
 
 </body>

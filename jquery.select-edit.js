@@ -145,6 +145,7 @@
         _onChangeSelect: function () {
             this._actualizeListItems();
             this._actualizeButtonText();
+            return true;
         },
 
         /**
@@ -152,11 +153,23 @@
          * @private
          */
         _actualizeListItems: function () {
-            var classSelected = this.options.classListitemSelected;
-            
-            this.getListItems().removeClass(classSelected);
-            this.getSelected().addClass(classSelected);
-//            console.log('_actualizeListItems', this.$select.val());
+            var classSelected = this.options.classListitemSelected,
+                $items = this.getListItems(),
+                $selectedOptions = this.getSelected(),
+                selectedItems = {};
+
+            $selectedOptions.each2(function () {
+                selectedItems[this.value] = this;
+            });
+
+            $items
+                .removeClass(classSelected)
+                .each2(function () {
+                    var value = this.getAttribute('data-value');
+                    if (selectedItems[value]) {
+                        $(this).addClass(classSelected)
+                    }
+                });
         },
 
         /**
@@ -391,8 +404,7 @@
                 this.hide();
             }
 
-            this._switchListItem($item, isSelected)
-//            this._switchOption($item.data('value'), isSelected);
+            this._switchListItem($item, isSelected);
         },
 
         /**
@@ -417,6 +429,8 @@
             var $option = this.$select.find('option[value="' + value + '"]');
             $option.prop('selected', selected);
             !selected && $option.removeAttr('selected');
+
+            this.$select.trigger('change');
         },
 
         /**
@@ -564,7 +578,7 @@
 
         _fixSelect: function () {
             var $emptyOption = this.$select.find(':not([value])');
-            if (!$emptyOption.length) {
+            if (!$emptyOption.length && !this.isMultiple) {
                 this.$select.prepend('<option selected="selected"></option>');
             }
         }
