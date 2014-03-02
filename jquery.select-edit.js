@@ -19,6 +19,7 @@
         KEY_CODE_RIGHT = 37,
         KEY_CODE_ENTER = 13,
         $document = $(document),
+        $window = $(window),
         CLASS = 'select-edit',
         CLASS_BUTTON = CLASS + '__select',
         CLASS_BUTTON_OPEN = CLASS_BUTTON + '_open',
@@ -121,8 +122,6 @@
         isOpen: false,
         isGenerateItems: false,
 
-        $window: $(window),
-
         /**
          * Инициализация
          */
@@ -147,7 +146,8 @@
             this.$content.insertAfter(this.$select);
 
             this.$button.on('click.' + _NAME_ + ' touchstart.' + _NAME_, $.proxy(this.toggle, this));
-            this.$window.on('resize.' + _NAME_, this.updateListPosition.bind(this));
+
+            $window.on('resize.' + _NAME_, this.updateListPosition.bind(this));
         },
 
         /**
@@ -230,9 +230,9 @@
         updateListPosition: function () {
             var position = this.$content.offset(),
                 listHeight = this.$group.outerHeight(),
-                windowHeight = this.$window.height(),
+                windowHeight = $window.height(),
                 contentHeight = this.$content.outerHeight(),
-                documentScroll = this.$window.scrollTop(),
+                documentScroll = $window.scrollTop(),
                 freeSpace = windowHeight - position.top - contentHeight - DROP_MARGIN,
                 offsetTop = 0,
                 dropMod = '',
@@ -345,6 +345,7 @@
             else {
                 this.$group.off('.' + _NAME_);
                 $document.off('.' + _NAME_);
+                $window.off('.' + _NAME_);
             }
             this.toggleButton();
         },
