@@ -5,7 +5,7 @@
 .select-edit .select-edit-drop {
   position: absolute;
   margin-top: 5px;
-  min-width: 100%;
+  width: 100%;
 }
 .select-edit .select-edit-drop.select-edit-drop_show.select-edit-drop_show-up {
   bottom: 100%;
