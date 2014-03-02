@@ -49,6 +49,17 @@
         },
         _isArray = function (object) {
             return _toString.call(object) == "[object Array]";
+        },
+        _getObjectValues = function (obj) {
+            var values = [];
+
+            for (var key in obj) {
+                if (obj.hasOwnProperty(key)) {
+                    values.push(obj[key]);
+                }
+            }
+
+            return values;
         };
 
     _Constructor = function (element, options) {
@@ -257,7 +268,7 @@
          * @returns {*}
          */
         removeModElement: function ($element, mods) {
-            return ($element).removeClass(_.values(mods).join(' '));
+            return ($element).removeClass(_getObjectValues(mods).join(' '));
         },
 
         /**
