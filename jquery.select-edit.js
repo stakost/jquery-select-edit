@@ -32,6 +32,12 @@
         CLASS_LIST_ITEM = CLASS_LIST + '__item',
         CLASS_LIST_ITEM_HOVER = CLASS_LIST_ITEM + '_hover',
         CLASS_LIST_ITEM_SELECTED = CLASS_LIST_ITEM + '_selected',
+
+        DROP_MODS = {
+            'up': CLASS_DROP_SHOW_UP,
+            'down': CLASS_DROP_SHOW_DOWN
+        },
+        
         _toString = Object.prototype.toString,
         _isFunction = function (object) {
             return typeof object === 'function';
@@ -205,11 +211,51 @@
          * Задает правильную позицию для списка
          */
         updateListPosition: function () {
+            var position = this.$content.offset(),
+                listHeight = this.$group.outerHeight(),
+                windowHeight = $(window).height(),
+                freeSpace = windowHeight - position.top,
+                offsetTop = 0,
+                dropMod = '';
+
+            if (freeSpace < listHeight) {
+                offsetTop = -listHeight;
+
+                dropMod = 'up';
+            } else {
+                offsetTop = this.$content.outerHeight();
+
+                dropMod = 'down';
+            }
+
             if (this.options.appendBody) {
-                var position = this.$content.offset();
-                position.top += this.$content.outerHeight();
+                position.top += offsetTop;
                 this.$group.offset(position);
             }
+
+            this.setMod(dropMod, DROP_MODS, this.$group);
+        },
+
+        /**
+         * Устанавливает модификатор на элемент
+         * @param mode
+         * @param mods
+         * @param $element
+         */
+        setMod: function (mode, mods, $element) {
+            this
+                .removeModElement($element, mods)
+                .addClass(mods[mode]);
+        },
+
+        /**
+         * Удаляет модификаторы с элемента
+         * @param $element
+         * @param mods
+         * @returns {*}
+         */
+        removeModElement: function ($element, mods) {
+            return ($element).removeClass(_.values(mods).join(' '));
         },
 
         /**
