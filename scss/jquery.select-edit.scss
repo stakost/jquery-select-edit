@@ -3,7 +3,22 @@
 $text-color: #135b8a;
 $background-color: #e6ecf6;
 .select-edit {
+    position: relative;
     display: inline-block;
+
+    .select-edit-drop {
+        position: absolute;
+        margin-top: 5px;
+        min-width: 100%;
+
+        &.select-edit-drop_show {
+            &.select-edit-drop_show-up {
+                bottom: 100%;
+
+                margin: 0 0 5px 0;
+                }
+            }
+        }
     }
     select.select-edit,
     .select-edit__select {
@@ -106,9 +121,6 @@ $background-color: #e6ecf6;
     border: 1px solid rgba(118,123,144,.11);
 
     &.select-edit-drop_show {
-            &.select-edit-drop_show-up {
-                bottom: 100%;
-                }
         }
     }
     .select-edit__tooltip {

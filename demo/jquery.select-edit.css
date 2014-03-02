@@ -1,5 +1,15 @@
 .select-edit {
+  position: relative;
   display: inline-block;
+}
+.select-edit .select-edit-drop {
+  position: absolute;
+  margin-top: 5px;
+  min-width: 100%;
+}
+.select-edit .select-edit-drop.select-edit-drop_show.select-edit-drop_show-up {
+  bottom: 100%;
+  margin: 0 0 5px 0;
 }
 
 select.select-edit,
@@ -96,9 +106,6 @@ select.select-edit ::-moz-selection {
   -webkit-box-shadow: 0 1px 1px 1px rgba(118, 123, 144, 0.21);
   box-shadow: 0 1px 1px 1px rgba(118, 123, 144, 0.21);
   border: 1px solid rgba(118, 123, 144, 0.11);
-}
-.select-edit-drop.select-edit-drop_show.select-edit-drop_show-up {
-  bottom: 100%;
 }
 
 .select-edit__tooltip {
