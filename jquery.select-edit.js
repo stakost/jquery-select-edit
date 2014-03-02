@@ -345,7 +345,6 @@
             else {
                 this.$group.off('.' + _NAME_);
                 $document.off('.' + _NAME_);
-                $window.off('.' + _NAME_);
             }
             this.toggleButton();
         },
