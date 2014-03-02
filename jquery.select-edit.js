@@ -121,6 +121,8 @@
         isOpen: false,
         isGenerateItems: false,
 
+        $window: $(window),
+
         /**
          * Инициализация
          */
@@ -145,6 +147,7 @@
             this.$content.insertAfter(this.$select);
 
             this.$button.on('click.' + _NAME_ + ' touchstart.' + _NAME_, $.proxy(this.toggle, this));
+            this.$window.on('resize.' + _NAME_, this.updateListPosition.bind(this));
         },
 
         /**
@@ -225,12 +228,12 @@
          * Задает правильную позицию для списка
          */
         updateListPosition: function () {
-            var $window = $(window),
-                position = this.$content.offset(),
+            var position = this.$content.offset(),
                 listHeight = this.$group.outerHeight(),
-                windowHeight = $(window).height(),
-                documentScroll = $window.scrollTop(),
-                freeSpace = windowHeight - position.top,
+                windowHeight = this.$window.height(),
+                contentHeight = this.$content.outerHeight(),
+                documentScroll = this.$window.scrollTop(),
+                freeSpace = windowHeight - position.top - contentHeight - DROP_MARGIN,
                 offsetTop = 0,
                 dropMod = '',
                 hasTopSpace = (position.top - documentScroll) > listHeight,
@@ -241,7 +244,7 @@
 
                 dropMod = 'up';
             } else {
-                offsetTop = this.$content.outerHeight() + DROP_MARGIN;
+                offsetTop = contentHeight + DROP_MARGIN;
 
                 dropMod = 'down';
             }
