@@ -1,5 +1,5 @@
 /**
- * Select-edit 1.0.4
+ * Select-edit 1.0.5
  * jQuery plugin for custom select editable.
  *
  * Full source at https://github.com/stakost/jquery-select-edit
@@ -74,6 +74,7 @@
 
         offsetTop: 3,
 
+        autohide: true,
         placeholderTitle: null,
 
         classHide: CLASS + '-hide',
@@ -312,7 +313,7 @@
                     break;
                 case KEY_CODE_ENTER:
                     this._toggleListItemHover();
-                    !this.isMultiple && this.hide();
+                    this.options.autohide && this.hide();
 
                     break;
             }
@@ -413,8 +414,9 @@
 
             if (!this.isMultiple) {
                 this.getListItems().removeClass(classSelected);
-                this.hide();
             }
+
+            options.autohide && this.hide();
 
             this._switchListItem($item, isSelected);
         },
