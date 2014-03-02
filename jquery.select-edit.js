@@ -25,6 +25,8 @@
         CLASS_BUTTON_EMPTY = CLASS_BUTTON + '_empty',
         CLASS_BUTTON_TEXT = CLASS_BUTTON + '__current',
         CLASS_DROP = CLASS + '-drop',
+        CLASS_DROP_SHOW_UP = CLASS_DROP + '_show-up',
+        CLASS_DROP_SHOW_DOWN = CLASS_DROP + '_show-down',
         CLASS_DROP_SHOW = CLASS_DROP + '_show',
         CLASS_TOOLTIP = CLASS + '__tooltip',
         CLASS_LIST = CLASS + '__results',
