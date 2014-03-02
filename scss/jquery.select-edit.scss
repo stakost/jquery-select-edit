@@ -106,6 +106,10 @@ $background-color: #e6ecf6;
     border: 1px solid rgba(118,123,144,.11);
 
     &.select-edit-drop_show {
+            &.select-edit-drop_show-up {
+                bottom: 100%;
+                }
+            }
         }
     }
     .select-edit__tooltip {
