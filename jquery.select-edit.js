@@ -257,7 +257,24 @@
          * @returns {*}
          */
         removeModElement: function ($element, mods) {
-            return ($element).removeClass(_.values(mods).join(' '));
+            return ($element).removeClass(this.getObjectValues(mods).join(' '));
+        },
+
+        /**
+         * Возвращает все значения объекта
+         * @param obj
+         * @returns {Array}
+         */
+        getObjectValues: function (obj) {
+            var values = [];
+
+            for (var key in obj) {
+                if (obj.hasOwnProperty(key)) {
+                    values.push(obj[key]);
+                }
+            }
+
+            return values;
         },
 
         /**
