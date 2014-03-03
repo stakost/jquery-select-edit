@@ -41,7 +41,7 @@
             'up': CLASS_DROP_SHOW_UP,
             'down': CLASS_DROP_SHOW_DOWN
         },
-        
+
         _toString = Object.prototype.toString,
         _isFunction = function (object) {
             return typeof object === 'function';
@@ -84,9 +84,9 @@
         tmplContent:
             '<div role="form">' +
                 '<span role="button">' +
-                    '<span role="link"></span>' +
+                '<span role="link"></span>' +
                 '</span>' +
-            '</div>',
+                '</div>',
         tmplGroup: '<div role="group"></div>',
         tmplTooltip: '<div role="tooltip"></div>',
         tmplList: '<div role="list"></div>',
@@ -113,7 +113,8 @@
         classListitemHover: CLASS_LIST_ITEM_HOVER,
         classListitemSelected: CLASS_LIST_ITEM_SELECTED,
 
-        callItemToggle: null
+        callItemToggle: null,
+        callBeforeChange: null
     };
 
     _Constructor.prototype = {
@@ -497,6 +498,22 @@
          * @private
          */
         _switchListItem: function ($item, selected) {
+            var callBeforeChange = this.options.callBeforeChange,
+                isOk = true,
+                value = $item.data('value'),
+                triggerData = {
+                    value: value,
+                    selected: selected
+                };
+
+            _.isFunction(callBeforeChange) && (isOk = callBeforeChange(triggerData));
+
+            this.$select.trigger('beforeChange', triggerData);
+
+            if (!isOk) {
+                return false;
+            }
+
             $item.toggleClass(this.options.classListitemSelected, selected);
             this._switchOption($item.data('value'), selected);
             this._actualizeButtonText();
