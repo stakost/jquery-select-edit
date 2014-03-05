@@ -134,10 +134,10 @@
             this.$select
                 // прячем из фокуса селект
                 .attr('tabindex', '-1')
-                .on('change', $.proxy(this._onChangeSelect, this));
+                .on('change.' + _NAME_, $.proxy(this._onChangeSelect, this));
 
             // создаем фейковый инпут для фокуса
-            this.$fakeInput =$('<input tabindex="0">')
+            this.$fakeInput = $('<input tabindex="0">')
                 .addClass(options.classHide)
                 .on('focus keydown blur', $.proxy(this._onEventFake, this))
                 .insertBefore(this.$select);
@@ -149,6 +149,22 @@
             this.$button.on('click.' + _NAME_ + ' touchstart.' + _NAME_, $.proxy(this.toggle, this));
 
             $window.on('resize.' + _NAME_, this.updateListPosition.bind(this));
+        },
+
+        /**
+         * Уничтожает виджет
+         */
+        destroy: function () {
+            this.hide();
+
+            this.$content.remove();
+            this.$fakeInput.remove();
+
+            this._showSelect();
+
+            this.$select.data(_NAME_, false);
+            this.$select.off('.' + _NAME_);
+            $window.off('.' + _NAME_);
         },
 
         /**
@@ -313,7 +329,7 @@
             this._eventsGroup();
 
             this.$group
-                .removeClass(this.options.classGroupShow)
+                .removeClass(this.options.classGroupShow);
 
             this.options.appendBody && this.$group.offset({
                 top: 0,
@@ -506,7 +522,7 @@
                     selected: selected
                 };
 
-            _.isFunction(callBeforeChange) && (isOk = callBeforeChange(triggerData));
+            _isFunction(callBeforeChange) && (isOk = callBeforeChange(triggerData));
 
             this.$select.trigger('beforeChange', triggerData);
 
@@ -605,6 +621,14 @@
          */
         _hideSelect: function () {
             this.$select.addClass(this.options.classHide);
+        },
+
+        /**
+         * Показать родной селект
+         * @private
+         */
+        _showSelect: function () {
+            this.$select.removeClass(this.options.classHide);
         },
 
         /**
