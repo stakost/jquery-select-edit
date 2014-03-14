@@ -160,3 +160,20 @@ $background-color: #e6ecf6;
     .select-edit__results__item_selected {
         font-weight: bold;
         }
+
+.select-edit__submit-box {
+    text-align: center;
+    padding: 10px;
+    }
+    .select-edit__submit {
+        width: 100%;
+
+        vertical-align: middle;
+        cursor: pointer;
+        background-image: none;
+        border-width: 0;
+        white-space: nowrap;
+        color: $btn-default-color;
+        background-color: $background-color;
+        padding: 4px 20px 5px;
+        }

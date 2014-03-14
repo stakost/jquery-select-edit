@@ -31,8 +31,11 @@
         CLASS_DROP_SHOW = CLASS_DROP + '_show',
         CLASS_TOOLTIP = CLASS + '__tooltip',
         CLASS_LIST = CLASS + '__results',
+        CLASS_SUBMIT_BOX = CLASS + '__submit-box',
+        CLASS_SUBMIT = CLASS + '__submit',
         CLASS_LISTBOX = CLASS_LIST,
         CLASS_LIST_ITEM = CLASS_LIST + '__item',
+        CLASS_LIST_ITEM_MARKED = CLASS_LIST_ITEM + '_marked',
         CLASS_LIST_ITEM_HOVER = CLASS_LIST_ITEM + '_hover',
         CLASS_LIST_ITEM_SELECTED = CLASS_LIST_ITEM + '_selected',
 
@@ -92,11 +95,16 @@
         tmplList: '<div role="list"></div>',
         tmplListbox: '<div role="listbox"></div>',
         tmplListitem: '<div role="listitem"%attrs%>%text%</div>',
+        tmplSubmitBox: '<div></div>',
+        tmplSubmit: '<button role="submit">submit</button>',
 
         placeholderTitle: null,
 
         // вставлять открывающийся список в боди
         appendBody: false,
+
+        // use submit button
+        submit: false,
 
         classHide: CLASS + '-hide',
         classForm: CLASS,
@@ -107,6 +115,8 @@
         classGroup: CLASS_DROP,
         classGroupShow: CLASS_DROP_SHOW,
         classTooltip: CLASS_TOOLTIP,
+        classSubmitBox: CLASS_SUBMIT_BOX,
+        classSubmit: CLASS_SUBMIT,
         classList: CLASS_LIST,
         classListbox: CLASS_LISTBOX,
         classListitem: CLASS_LIST_ITEM,
@@ -147,6 +157,7 @@
             this.$content.insertAfter(this.$select);
 
             this.$button.on('click.' + _NAME_ + ' touchstart.' + _NAME_, $.proxy(this.toggle, this));
+            this.$submit && this.$submit.on('click.' + _NAME_, $.proxy(this.submitChanges, this));
 
             $window.on('resize.' + _NAME_, this.updateListPosition.bind(this));
         },
@@ -239,6 +250,29 @@
                 this.show();
             }
             return false;
+        },
+
+        /**
+         * Применяет изменения
+         */
+        submitChanges: function () {
+            // Применяем изменения только к помеченным элементам
+            // Выбирать только чекнутые нельзя, т.к. в изменения может входить и uncheck
+            var $itemsList = this.getMarkedOptions();
+
+            $itemsList.each(function (index, item) {
+                var $item = $(item),
+                    value = $item.data('value'),
+                    selected = $item.hasClass(this.options.classListitemSelected);
+
+                $item.removeClass(CLASS_LIST_ITEM_MARKED);
+
+                // почему-то проверка selected в этом методе вызывается позже, чем в _switchOption
+                setTimeout(this._switchOption.bind(this, value, selected));
+                this._actualizeButtonText();
+
+                this.hide();
+            }.bind(this));
         },
 
         /**
@@ -380,6 +414,8 @@
          * @private
          */
         _keydownGroup: function (e) {
+            var options = this.options;
+
             if (!this.isOpen) {
                 return true;
             }
@@ -400,7 +436,7 @@
                     break;
                 case KEY_CODE_ENTER:
                     this._toggleListItemHover();
-                    !this.isMultiple && this.hide();
+                    !this.isMultiple && !options.submit && this.hide();
 
                     break;
             }
@@ -499,7 +535,7 @@
                 $item = $(e.currentTarget),
                 isSelected = !$item.hasClass(classSelected);
 
-            if (!this.isMultiple) {
+            if (!this.isMultiple && !options.submit) {
                 this.getListItems().removeClass(classSelected);
                 this.hide();
             }
@@ -514,7 +550,8 @@
          * @private
          */
         _switchListItem: function ($item, selected) {
-            var callBeforeChange = this.options.callBeforeChange,
+            var options = this.options,
+                callBeforeChange = this.options.callBeforeChange,
                 isOk = true,
                 value = $item.data('value'),
                 triggerData = {
@@ -530,7 +567,18 @@
                 return false;
             }
 
-            $item.toggleClass(this.options.classListitemSelected, selected);
+            if (!this.isMultiple) {
+                $item.siblings().removeClass(options.classListitemSelected);
+            }
+
+            $item.toggleClass(options.classListitemSelected, selected);
+
+            if (this.options.submit) {
+                $item.addClass(CLASS_LIST_ITEM_MARKED);
+
+                return;
+            }
+
             this._switchOption($item.data('value'), selected);
             this._actualizeButtonText();
         },
@@ -539,6 +587,7 @@
          * Переключить состояние у селекта
          * @param value
          * @param selected
+         * @param force
          * @private
          */
         _switchOption: function (value, selected) {
@@ -553,7 +602,6 @@
             !selected && $option.removeAttr('selected');
 
             _isFunction(callItemToggle) && callItemToggle(triggerData);
-
 
             this.$select
                 .trigger('change')
@@ -616,6 +664,14 @@
         },
 
         /**
+         * Возвращает список помеченных на редактирование элементов
+         * @returns {*}
+         */
+        getMarkedOptions: function () {
+            return this.$list.find('.' + CLASS_LIST_ITEM_MARKED);
+        },
+
+        /**
          * Скрыть родной селект
          * @private
          */
@@ -665,6 +721,15 @@
             }
 
             this.$group.append(this.$list);
+
+            if (options.submit) {
+                this.$submitBox = $(options.tmplSubmitBox).addClass(options.classSubmitBox);
+                this.$submit = $(options.tmplSubmit).addClass(options.classSubmit);
+
+                this.$submitBox
+                    .append(this.$submit)
+                    .appendTo(this.$group);
+            }
         },
 
         /**
