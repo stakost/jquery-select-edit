@@ -96,7 +96,7 @@
         tmplListbox: '<div role="listbox"></div>',
         tmplListitem: '<div role="listitem"%attrs%>%text%</div>',
         tmplSubmitBox: '<div></div>',
-        tmplSubmit: '<button role="submit">submit</button>',
+        tmplSubmit: '<button role="actionButton">submit</button>',
 
         placeholderTitle: null,
 
@@ -104,7 +104,7 @@
         appendBody: false,
 
         // use submit button
-        submit: false,
+        submitButton: false,
 
         classHide: CLASS + '-hide',
         classForm: CLASS,
@@ -157,7 +157,7 @@
             this.$content.insertAfter(this.$select);
 
             this.$button.on('click.' + _NAME_ + ' touchstart.' + _NAME_, $.proxy(this.toggle, this));
-            this.$submit && this.$submit.on('click.' + _NAME_, $.proxy(this.submitChanges, this));
+            this.$submitButton && this.$submitButton.on('click.' + _NAME_, $.proxy(this.submitChanges, this));
 
             $window.on('resize.' + _NAME_, this.updateListPosition.bind(this));
         },
@@ -436,7 +436,7 @@
                     break;
                 case KEY_CODE_ENTER:
                     this._toggleListItemHover();
-                    !this.isMultiple && !options.submit && this.hide();
+                    !this.isMultiple && !options.submitButton && this.hide();
 
                     break;
             }
@@ -535,7 +535,7 @@
                 $item = $(e.currentTarget),
                 isSelected = !$item.hasClass(classSelected);
 
-            if (!this.isMultiple && !options.submit) {
+            if (!this.isMultiple && !options.submitButton) {
                 this.getListItems().removeClass(classSelected);
                 this.hide();
             }
@@ -573,7 +573,7 @@
 
             $item.toggleClass(options.classListitemSelected, selected);
 
-            if (this.options.submit) {
+            if (this.options.submitButton) {
                 $item.addClass(CLASS_LIST_ITEM_MARKED);
 
                 return;
@@ -722,12 +722,12 @@
 
             this.$group.append(this.$list);
 
-            if (options.submit) {
+            if (options.submitButton) {
                 this.$submitBox = $(options.tmplSubmitBox).addClass(options.classSubmitBox);
-                this.$submit = $(options.tmplSubmit).addClass(options.classSubmit);
+                this.$submitButton = $(options.tmplSubmit).addClass(options.classSubmit);
 
                 this.$submitBox
-                    .append(this.$submit)
+                    .append(this.$submitButton)
                     .appendTo(this.$group);
             }
         },
