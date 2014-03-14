@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
 <head>
+	<meta charset="UTF-8">
     <title>Demo select-edit</title>
     <link href="common.css" rel="stylesheet" />
     <link href="jquery.select-edit.css" rel="stylesheet" />
@@ -2033,6 +2034,24 @@
         <option value="22" selected="true">Канада</option>
     </select>
 </p>
+<p>Has submit button:
+	<select class="select-edit-submit" autocomplete="off" data-placeholder-title="Всегда есть">
+		<option value="1">Россия</option>
+		<option value="2">Украина</option>
+		<option value="12" selected="true">США</option>
+		<option value="22" selected="true">Канада</option>
+	</select>
+</p>
+<p>Has submit button multiple:
+	<select class="select-edit-submit" autocomplete="off" data-placeholder-title="Всегда есть" multiple size="1">
+		<option value="1">Россия</option>
+		<option value="2">Украина</option>
+		<option value="12" selected="true">США</option>
+		<option value="22" selected="true">Канада</option>
+		<option value="23" >Беларусь</option>
+		<option value="24" selected="true">Китай</option>
+	</select>
+</p>
 
 <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 <script src="jquery.select-edit.min.js"></script>
@@ -2049,6 +2068,21 @@
     .on('itemToggle', function (e, item) {
         console.log('event listener change', item);
     });
+
+	$('.select-edit-submit')
+	.selectEdit({
+		'submitButton': true,
+		'tmplSubmit': '<button role="submitButton">Apply</button>',
+		'callItemToggle': function (item) {
+			console.log('item changed: value ', item.value, ', isSelected: ', item.selected);
+		}
+	})
+	.on('change', function () {
+		console.log('outside event change', $(this).val());
+	})
+	.on('itemToggle', function (e, item) {
+		console.log('event listener change', item);
+	});
 </script>
 
 </body>
