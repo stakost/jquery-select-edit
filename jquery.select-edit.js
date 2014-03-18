@@ -156,7 +156,7 @@
 
             this.$content.insertAfter(this.$select);
 
-            this.$button.on('click.' + _NAME_ + ' touchstart.' + _NAME_, $.proxy(this.toggle, this));
+            this.$button.on('click.' + _NAME_ + ' touchend.' + _NAME_, $.proxy(this.toggle, this));
             this.$submitButton && this.$submitButton.on('click.' + _NAME_, $.proxy(this.submitChanges, this));
 
             $window.on('resize.' + _NAME_, this.updateListPosition.bind(this));
@@ -382,15 +382,16 @@
 
             if (this.isOpen) {
                 this.$group
-                    .on('click.' + _NAME_ + ' touchstart.' + _NAME_, $.proxy(this._clickGroup, this))
-                    .on('click.' + _NAME_ + ' touchstart.' + _NAME_, '.' + options.classListitem, $.proxy(this._clickListItem, this))
-                    .on('mouseover.' + _NAME_ +' mouseout.' + _NAME_ + ' touchstart.' + _NAME_,
+                    .on('touchmove.' + _NAME_, $.proxy(this._touchmoveGroup, this))
+                    .on('click.' + _NAME_ + ' touchend.' + _NAME_, $.proxy(this._clickGroup, this))
+                    .on('click.' + _NAME_ + ' touchend.' + _NAME_, '.' + options.classListitem, $.proxy(this._clickListItem, this))
+                    .on('mouseover.' + _NAME_ +' mouseout.' + _NAME_ + ' touchend.' + _NAME_,
                         '.' + options.classListitem,
                         $.proxy(this._hoverItem, this)
                     );
                 $document
                     .on('keydown.' + _NAME_, $.proxy(this._keydownGroup, this))
-                    .on('click.' + _NAME_ + ' touchstart.' + _NAME_, $.proxy(this._clickDocument, this))
+                    .on('click.' + _NAME_ + ' touchend.' + _NAME_, $.proxy(this._clickDocument, this))
                     .on('event-show.' + _NAME_, $.proxy(this.hide, this));
             }
             else {
@@ -513,8 +514,8 @@
 
             switch (e.type) {
                 case 'mouseover':
-                case 'touchstart':
-                    e.type === 'touchstart' && $listItems.removeClass(classHover);
+                case 'touchend':
+                    e.type === 'touchend' && $listItems.removeClass(classHover);
                     $listItem.addClass(classHover);
                     break;
 
@@ -525,11 +526,24 @@
         },
 
         /**
+         * Ловим движение по тачскрину
+         * @private
+         */
+        _touchmoveGroup: function () {
+            this.isTouchMove = true;
+        },
+
+        /**
          * Клик по элементу списка
          * @param e
          * @private
          */
         _clickListItem: function (e) {
+            // если было движение по тачскрину - не выделяем
+            if (this.isTouchMove) {
+                this.isTouchMove = false;
+                return true;
+            }
             var options = this.options,
                 classSelected = options.classListitemSelected,
                 $item = $(e.currentTarget),
