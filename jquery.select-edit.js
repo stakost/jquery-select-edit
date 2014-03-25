@@ -109,7 +109,7 @@
         // use submit button
         submitButton    : false,
 
-        search: false,
+        search: null,
 
         classHide            : CLASS + '-hide',
         classForm            : CLASS,
@@ -165,8 +165,6 @@
 
             this.$button.on('click.' + _NAME_ + ' touchend.' + _NAME_, $.proxy(this.toggle, this));
             this.$submitButton && this.$submitButton.on('click.' + _NAME_, $.proxy(this.submitChanges, this));
-
-            this.$searchInput && this.$searchInput.on('keyup.' + _NAME_, $.proxy(this._searchItems, this))
 
             $window.on('resize.' + _NAME_, this.updateListPosition.bind(this));
         },
@@ -389,7 +387,8 @@
          * @private
          */
         _eventsGroup: function () {
-            var options = this.options;
+            var options = this.options,
+                $searchInput = this.$searchInput;
 
             if (this.isOpen) {
                 this.$group
@@ -404,10 +403,13 @@
                     .on('keydown.' + _NAME_, $.proxy(this._keydownGroup, this))
                     .on('click.' + _NAME_ + ' touchend.' + _NAME_, $.proxy(this._clickDocument, this))
                     .on('event-show.' + _NAME_, $.proxy(this.hide, this));
+
+                $searchInput && $searchInput.on('keyup.' + _NAME_, $.proxy(this._searchItems, this));
             }
             else {
                 this.$group.off('.' + _NAME_);
                 $document.off('.' + _NAME_);
+                $searchInput.off('.' + _NAME_)
             }
             this.toggleButton();
         },
@@ -792,15 +794,6 @@
                     .append(this.$submitButton)
                     .appendTo(this.$group);
             }
-
-            if (options.search) {
-                this.$searchBox = $(options.tmplSearchBox).addClass(options.classSearchBox);
-                this.$searchInput = $(options.tmplSearchInput).addClass(options.classSearchInput);
-
-                this.$searchBox
-                    .append(this.$searchInput)
-                    .insertBefore(this.$list);
-            }
         },
 
         /**
@@ -839,6 +832,15 @@
 
                 html += itemHtml;
             });
+
+            if ((options.search || (options.search === null && $childs.length > 10)) && !this.$searchInput) {
+                this.$searchBox = $(options.tmplSearchBox).addClass(options.classSearchBox);
+                this.$searchInput = $(options.tmplSearchInput).addClass(options.classSearchInput);
+
+                this.$searchBox
+                    .append(this.$searchInput)
+                    .insertBefore(this.$list);
+            }
 
             this.$listItems = $(html);
             this.$list.html(this.$listItems);
