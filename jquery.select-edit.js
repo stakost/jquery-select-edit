@@ -410,7 +410,7 @@
             else {
                 this.$group.off('.' + _NAME_);
                 $document.off('.' + _NAME_);
-                $searchInput.off('.' + _NAME_)
+                $searchInput && $searchInput.off('.' + _NAME_);
             }
             this.toggleButton();
         },
@@ -834,7 +834,7 @@
                 html += itemHtml;
             });
 
-            if ((options.placeholderSearch || options.search || (options.search === null && $childs.length > 10)) && !this.$searchInput) {
+            if ((options.search || (options.search === null && $childs.length > 10)) && !this.$searchInput) {
                 this.$searchBox = $(options.tmplSearchBox).addClass(options.classSearchBox);
                 this.$searchInput = $(options.tmplSearchInput)
                     .addClass(options.classSearchInput)
