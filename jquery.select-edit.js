@@ -1,5 +1,5 @@
 /**
- * Select-edit 1.0.7
+ * Select-edit 1.0.14
  * jQuery plugin for custom select editable.
  *
  * Full source at https://github.com/stakost/jquery-select-edit
@@ -33,6 +33,8 @@
         CLASS_LIST = CLASS + '__results',
         CLASS_SUBMIT_BOX = CLASS + '__submit-box',
         CLASS_SUBMIT = CLASS + '__submit',
+        CLASS_SEARCH_BOX = CLASS + '__search-box',
+        CLASS_SEARCH_INPUT = CLASS + '__search-input',
         CLASS_LISTBOX = CLASS_LIST,
         CLASS_LIST_ITEM = CLASS_LIST + '__item',
         CLASS_LIST_ITEM_MARKED = CLASS_LIST_ITEM + '_marked',
@@ -84,46 +86,51 @@
     };
 
     _Constructor.DEFAULTS = {
-        tmplContent:
-            '<div role="form">' +
-                '<span role="button">' +
-                '<span role="link"></span>' +
-                '</span>' +
-                '</div>',
-        tmplGroup: '<div role="group"></div>',
-        tmplTooltip: '<div role="tooltip"></div>',
-        tmplList: '<div role="list"></div>',
-        tmplListbox: '<div role="listbox"></div>',
-        tmplListitem: '<div role="listitem"%attrs%>%text%</div>',
-        tmplSubmitBox: '<div></div>',
-        tmplSubmit: '<button role="actionButton">submit</button>',
+        tmplContent    : '<div role="form">' +
+                            '<span role="button">' +
+                                '<span role="link"></span>' +
+                            '</span>' +
+                         '</div>',
+        tmplGroup      : '<div role="group"></div>',
+        tmplTooltip    : '<div role="tooltip"></div>',
+        tmplList       : '<div role="list"></div>',
+        tmplListbox    : '<div role="listbox"></div>',
+        tmplListitem   : '<div role="listitem"%attrs%>%text%</div>',
+        tmplSubmitBox  : '<div></div>',
+        tmplSubmit     : '<button role="actionButton">submit</button>',
+        tmplSearchBox  : '<div></div>',
+        tmplSearchInput: '<input name="_search" type="search" />',
 
         placeholderTitle: null,
 
         // вставлять открывающийся список в боди
-        appendBody: false,
+        appendBody      : false,
 
         // use submit button
-        submitButton: false,
+        submitButton    : false,
 
-        classHide: CLASS + '-hide',
-        classForm: CLASS,
-        classButton: CLASS_BUTTON,
-        classButtonOpen: CLASS_BUTTON_OPEN,
-        classButtonEmpty: CLASS_BUTTON_EMPTY,
-        classButtonText: CLASS_BUTTON_TEXT,
-        classGroup: CLASS_DROP,
-        classGroupShow: CLASS_DROP_SHOW,
-        classTooltip: CLASS_TOOLTIP,
-        classSubmitBox: CLASS_SUBMIT_BOX,
-        classSubmit: CLASS_SUBMIT,
-        classList: CLASS_LIST,
-        classListbox: CLASS_LISTBOX,
-        classListitem: CLASS_LIST_ITEM,
-        classListitemHover: CLASS_LIST_ITEM_HOVER,
+        search: false,
+
+        classHide            : CLASS + '-hide',
+        classForm            : CLASS,
+        classButton          : CLASS_BUTTON,
+        classButtonOpen      : CLASS_BUTTON_OPEN,
+        classButtonEmpty     : CLASS_BUTTON_EMPTY,
+        classButtonText      : CLASS_BUTTON_TEXT,
+        classGroup           : CLASS_DROP,
+        classGroupShow       : CLASS_DROP_SHOW,
+        classTooltip         : CLASS_TOOLTIP,
+        classSubmitBox       : CLASS_SUBMIT_BOX,
+        classSubmit          : CLASS_SUBMIT,
+        classSearchBox       : CLASS_SEARCH_BOX,
+        classSearchInput     : CLASS_SEARCH_INPUT,
+        classList            : CLASS_LIST,
+        classListbox         : CLASS_LISTBOX,
+        classListitem        : CLASS_LIST_ITEM,
+        classListitemHover   : CLASS_LIST_ITEM_HOVER,
         classListitemSelected: CLASS_LIST_ITEM_SELECTED,
 
-        callItemToggle: null,
+        callItemToggle  : null,
         callBeforeChange: null
     };
 
@@ -158,6 +165,8 @@
 
             this.$button.on('click.' + _NAME_ + ' touchend.' + _NAME_, $.proxy(this.toggle, this));
             this.$submitButton && this.$submitButton.on('click.' + _NAME_, $.proxy(this.submitChanges, this));
+
+            this.$searchInput && this.$searchInput.on('keyup.' + _NAME_, $.proxy(this._searchItems, this))
 
             $window.on('resize.' + _NAME_, this.updateListPosition.bind(this));
         },
@@ -348,6 +357,8 @@
                 .appendTo((this.options.appendBody && document.body) || this.$content)
                 .focus();
 
+            this.$searchInput && this.$searchInput.focus();
+
             this.updateListPosition();
 
             this.isOpen = true;
@@ -453,15 +464,31 @@
                 classHover = options.classListitemHover,
                 $items = this.getListItems(),
                 $itemHover = this._getListItemsHover($items),
-                $current;
+                $current,
+                _listHeight,
+                _listScrollTop,
+                _currentHeight,
+                _currentPosition;
 
             if (next) {
-                $current = ($itemHover.length && $itemHover.next());
-                $current = ($current.length && $current) || $items.first();
+                $current = ($itemHover.length && $itemHover.nextAll(':not(:hidden):first'));
+                $current = ($current.length && $current) || $items.filter(':not(:hidden):first');
             }
             else {
-                $current = ($itemHover.length && $itemHover.prev());
-                $current = ($current.length && $current) || $items.last();
+                $current = ($itemHover.length && $itemHover.prevAll(':not(:hidden):first'));
+                $current = ($current.length && $current) || $items.filter(':not(:hidden):last');
+            }
+
+            _listHeight = this.$list.height();
+            _listScrollTop = this.$list.scrollTop();
+            _currentPosition = $current.position();
+            _currentPosition = _currentPosition.top;
+
+            if (_listHeight < _currentPosition + $current.outerHeight()) {
+                this.$list.scrollTop(_listScrollTop + (_currentPosition + $current.outerHeight() - _listHeight))
+            }
+            else if (_currentPosition < 0) {
+                this.$list.scrollTop(_listScrollTop + (_currentPosition))
             }
 
             $itemHover.removeClass(classHover);
@@ -701,6 +728,27 @@
             this.$select.removeClass(this.options.classHide);
         },
 
+        _searchItems: function (e) {
+            var $search = $(e.currentTarget),
+                searchValue = $search.val();
+
+            if ($search.data('lastSearch') === searchValue) {
+                return false;
+            }
+            $search.data('lastSearch', searchValue);
+
+            this.$listItems.each2(function (i, $item) {
+                var node = $item[0],
+                    text = node.innerHTML;
+                if (~text.search(new RegExp(searchValue, 'i'))) {
+                    node.style.display = '';
+                }
+                else {
+                    node.style.display = 'none';
+                }
+            })
+        },
+
         /**
          * Инициализация html
          * @private
@@ -743,6 +791,15 @@
                 this.$submitBox
                     .append(this.$submitButton)
                     .appendTo(this.$group);
+            }
+
+            if (options.search) {
+                this.$searchBox = $(options.tmplSearchBox).addClass(options.classSearchBox);
+                this.$searchInput = $(options.tmplSearchInput).addClass(options.classSearchInput);
+
+                this.$searchBox
+                    .append(this.$searchInput)
+                    .insertBefore(this.$list);
             }
         },
 

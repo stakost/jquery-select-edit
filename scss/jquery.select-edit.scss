@@ -20,6 +20,10 @@ $background-color: #e6ecf6;
             }
         }
     }
+
+    select.select-edit {
+        height: 24px;
+        }
     select.select-edit,
     .select-edit__select {
         position: relative;
@@ -36,7 +40,6 @@ $background-color: #e6ecf6;
 
         padding: 2px 20px 3px;
         font-size: 17px;
-        height: 24px;
         line-height: 1.4;
         border-radius: 3px;
 
@@ -176,4 +179,12 @@ $background-color: #e6ecf6;
         color: $btn-default-color;
         background-color: $background-color;
         padding: 4px 20px 5px;
+        }
+
+.select-edit__search-box {
+    text-align: center;
+    padding: 5px 10px;
+    }
+    .select-edit__search-input {
+        width: 100%;
         }
