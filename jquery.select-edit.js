@@ -43,7 +43,7 @@
 
         DROP_MARGIN = 5,
         DROP_MODS = {
-            'up': CLASS_DROP_SHOW_UP,
+            'up'  : CLASS_DROP_SHOW_UP,
             'down': CLASS_DROP_SHOW_DOWN
         },
 
@@ -87,10 +87,10 @@
 
     _Constructor.DEFAULTS = {
         tmplContent    : '<div role="form">' +
-                            '<span role="button">' +
-                                '<span role="link"></span>' +
-                            '</span>' +
-                         '</div>',
+            '<span role="button">' +
+            '<span role="link"></span>' +
+            '</span>' +
+            '</div>',
         tmplGroup      : '<div role="group"></div>',
         tmplTooltip    : '<div role="tooltip"></div>',
         tmplList       : '<div role="list"></div>',
@@ -109,7 +109,8 @@
         // use submit button
         submitButton    : false,
 
-        search: null,
+        search           : null,
+        placeholderSearch: 'Search',
 
         classHide            : CLASS + '-hide',
         classForm            : CLASS,
@@ -137,7 +138,7 @@
     _Constructor.prototype = {
         Constructor: _Constructor,
 
-        isOpen: false,
+        isOpen         : false,
         isGenerateItems: false,
 
         /**
@@ -375,7 +376,7 @@
                 .removeClass(this.options.classGroupShow);
 
             this.options.appendBody && this.$group.offset({
-                top: 0,
+                top : 0,
                 left: 0
             });
 
@@ -395,7 +396,7 @@
                     .on('touchmove.' + _NAME_, $.proxy(this._touchmoveGroup, this))
                     .on('click.' + _NAME_ + ' touchend.' + _NAME_, $.proxy(this._clickGroup, this))
                     .on('click.' + _NAME_ + ' touchend.' + _NAME_, '.' + options.classListitem, $.proxy(this._clickListItem, this))
-                    .on('mouseover.' + _NAME_ +' mouseout.' + _NAME_ + ' touchend.' + _NAME_,
+                    .on('mouseover.' + _NAME_ + ' mouseout.' + _NAME_ + ' touchend.' + _NAME_,
                         '.' + options.classListitem,
                         $.proxy(this._hoverItem, this)
                     );
@@ -598,7 +599,7 @@
                 isOk = true,
                 value = $item.data('value'),
                 triggerData = {
-                    value: value,
+                    value   : value,
                     selected: selected
                 };
 
@@ -637,7 +638,7 @@
             var $option = this.$select.find('option[value="' + value + '"]'),
                 callItemToggle = this.options.callItemToggle,
                 triggerData = {
-                    value: value,
+                    value   : value,
                     selected: selected
                 };
 
@@ -827,15 +828,17 @@
                     return true;
                 }
 
-                itemHtml = itemHtml.replace('%attrs%',' data-value="' + value + '"');
+                itemHtml = itemHtml.replace('%attrs%', ' data-value="' + value + '"');
                 itemHtml = itemHtml.replace('%text%', text);
 
                 html += itemHtml;
             });
 
-            if ((options.search || (options.search === null && $childs.length > 10)) && !this.$searchInput) {
+            if ((options.placeholderSearch || options.search || (options.search === null && $childs.length > 10)) && !this.$searchInput) {
                 this.$searchBox = $(options.tmplSearchBox).addClass(options.classSearchBox);
-                this.$searchInput = $(options.tmplSearchInput).addClass(options.classSearchInput);
+                this.$searchInput = $(options.tmplSearchInput)
+                    .addClass(options.classSearchInput)
+                    .attr('placeholder', options.placeholderSearch);
 
                 this.$searchBox
                     .append(this.$searchInput)
