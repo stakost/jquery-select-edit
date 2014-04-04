@@ -11,6 +11,16 @@
   bottom: 100%;
   margin: 0 0 5px 0;
 }
+.select-edit.select-edit_disabled:after {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.6);
+}
 
 select.select-edit {
   height: 24px;

@@ -21,6 +21,7 @@
         $document = $(document),
         $window = $(window),
         CLASS = 'select-edit',
+        CLASS_DISABLED = CLASS + '_disabled',
         CLASS_BUTTON = CLASS + '__select',
         CLASS_BUTTON_OPEN = CLASS_BUTTON + '_open',
         CLASS_BUTTON_EMPTY = CLASS_BUTTON + '_empty',
@@ -73,13 +74,16 @@
         this.$select = $(element);
         this.options = options;
 
-        if (!this.$select.is('select')) {
+        var $select = this.$select;
+
+        if (!$select.is('select')) {
             console.warn(_NAME_, 'Sorry, only select element!');
             return false;
         }
 
-        this.$select.attr('autocomplete', 'off');
-        this.isMultiple = this.$select.prop('multiple');
+        $select.attr('autocomplete', 'off');
+        this.isMultiple = $select.prop('multiple');
+        this.isDisabled = $select.prop('disabled');
 
         this._fixSelect();
         this.initialize();
@@ -145,11 +149,13 @@
          * Инициализация
          */
         initialize: function () {
-            var options = this.options;
+            var options = this.options,
+                $select = this.$select;
+
             this._initHtml();
             this._hideSelect();
 
-            this.$select
+            $select
                 // прячем из фокуса селект
                 .attr('tabindex', '-1')
                 .on('change.' + _NAME_, $.proxy(this._onChangeSelect, this));
@@ -158,11 +164,13 @@
             this.$fakeInput = $('<input tabindex="0">')
                 .addClass(options.classHide)
                 .on('focus keydown blur', $.proxy(this._onEventFake, this))
-                .insertBefore(this.$select);
+                .insertBefore($select);
 
             this._actualizeButtonText();
 
-            this.$content.insertAfter(this.$select);
+            this.$content.insertAfter($select);
+
+            this.isDisabled && this.disable();
 
             this.$button.on('click.' + _NAME_ + ' touchend.' + _NAME_, $.proxy(this.toggle, this));
             this.$submitButton && this.$submitButton.on('click.' + _NAME_, $.proxy(this.submitChanges, this));
@@ -174,6 +182,8 @@
          * Уничтожает виджет
          */
         destroy: function () {
+            var $select = this.$select;
+
             this.hide();
 
             this.$content.remove();
@@ -181,8 +191,8 @@
 
             this._showSelect();
 
-            this.$select.data(_NAME_, false);
-            this.$select.off('.' + _NAME_);
+            $select.data(_NAME_, false);
+            $select.off('.' + _NAME_);
             $window.off('.' + _NAME_);
         },
 
@@ -251,6 +261,10 @@
          * Показать/спрятать список
          */
         toggle: function () {
+            if (this._getDisabledState()) {
+                return false;
+            }
+
             if (this.isOpen) {
                 this.hide();
             }
@@ -420,6 +434,32 @@
          */
         toggleButton: function () {
             this.$button.toggleClass(this.options.classButtonOpen, this.isOpen);
+        },
+
+        /**
+         * Enable widget
+         */
+        enable: function () {
+            this._toggleDisable(false);
+            this.isDisabled = false;
+        },
+
+        /**
+         * Disable widget
+         */
+        disable: function () {
+            this.hide();
+            this._toggleDisable(true);
+            this.isDisabled = true;
+        },
+
+        /**
+         * Toggle disable class
+         * @param disable
+         * @private
+         */
+        _toggleDisable: function (disable) {
+            this.$content.toggleClass(CLASS_DISABLED, disable);
         },
 
         /**
@@ -635,7 +675,8 @@
          * @private
          */
         _switchOption: function (value, selected) {
-            var $option = this.$select.find('option[value="' + value + '"]'),
+            var $select = this.$select,
+                $option = $select.find('option[value="' + value + '"]'),
                 callItemToggle = this.options.callItemToggle,
                 triggerData = {
                     value   : value,
@@ -647,7 +688,7 @@
 
             _isFunction(callItemToggle) && callItemToggle(triggerData);
 
-            this.$select
+            $select
                 .trigger('change')
                 .trigger('itemToggle', triggerData);
         },
@@ -691,14 +732,15 @@
          * @returns {*|HTMLElement}
          */
         getSelected: function () {
-            var val = this.$select.val(),
+            var $select = this.$select,
+                val = $select.val(),
                 $items = $();
 
             if (_isString(val)) {
-                $items = this.$select.find('[value="' + val + '"]');
+                $items = $select.find('[value="' + val + '"]');
             }
             else if (_isArray(val)) {
-                var $itemsAll = this.$select.find('[value]');
+                var $itemsAll = $select.find('[value]');
                 val.forEach(function (value) {
                     var $item = $itemsAll.filter('[value="' + value + '"]');
                     $items = ($items && $items.add($item)) || $item;
@@ -853,10 +895,20 @@
         },
 
         _fixSelect: function () {
-            var $emptyOption = this.$select.find(':not([value])');
+            var $select = this.$select,
+                $emptyOption = $select.find(':not([value])');
             if (!$emptyOption.length && !this.isMultiple) {
-                this.$select.prepend('<option selected="selected"></option>');
+                $select.prepend('<option selected="selected"></option>');
             }
+        },
+
+        /**
+         * Return disable state
+         * @returns {*}
+         * @private
+         */
+        _getDisabledState: function () {
+            return this.isDisabled;
         }
     };
 
