@@ -2053,30 +2053,84 @@
 	</select>
 </p>
 <p>Has submit button multiple:
-	<select class="select-edit-submit" autocomplete="off" data-placeholder-title="Всегда есть" multiple size="1">
-		<option value="1">Россия</option>
-		<option value="2">Украина</option>
-		<option value="12" selected="true">США</option>
-		<option value="22" selected="true">Канада</option>
-		<option value="23" >Беларусь</option>
-		<option value="24" selected="true">Китай</option>
-	</select>
+    <select class="select-edit-submit" autocomplete="off" data-placeholder-title="Всегда есть" multiple size="1">
+        <option value="1">Россия</option>
+        <option value="2">Украина</option>
+        <option value="12" selected="true">США</option>
+        <option value="22" selected="true">Канада</option>
+        <option value="23" >Беларусь</option>
+        <option value="24" selected="true">Китай</option>
+    </select>
 </p>
 
-<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+
+<p>Ajax:
+	<select class="select-edit-ajax" autocomplete="off" data-search="true" data-placeholder-title="Ajax" data-ajax='{"url" : "/test"}' data-plural="число,числа,чисел" size="1"></select>
+</p>
+
+<!-- <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script> -->
+<script src="jquery.min.js"></script>
 <script src="jquery.select-edit.min.js"></script>
+<script src="jquery.mockjax.js"></script>
+<script>
+    var resps = {
+        '1' : [
+            {
+                value : '1',
+                content : 'value - 1',
+                selected : true
+            },
+            {
+                value : '2',
+                content : 'value - 2',
+                selected : true
+            }
+        ],
+        default : [
+            {
+                value : 'value1',
+                content : '11',
+                selected : false
+            },
+            {
+                value : 'value2',
+                content : '22',
+                selected : false
+            },
+            {
+                value : 'value3',
+                content : '33',
+                selected : true
+            }
+        ]
+    };
+    $.mockjax({
+        logging: false,
+        responseTime : 500,
+        url: "/test",
+        response: function(req) {
+            if (!req.data || !req.data._search) {
+                this.responseText = this.responseText = resps.default;
+                return false;
+            }
+
+            if (resps[req.data._search]) this.responseText = resps[req.data._search];
+            else this.responseText = resps.default;
+        }
+    });
+</script>
 <script>
     $('.select-edit')
     .selectEdit({
         'callItemToggle': function (item) {
-            console.log('item changed: value ', item.value, ', isSelected: ', item.selected);
+            //console.log('item changed: value ', item.value, ', isSelected: ', item.selected);
         }
     })
     .on('change', function () {
-        console.log('outside event change', $(this).val());
+        //console.log('outside event change', $(this).val());
     })
     .on('itemToggle', function (e, item) {
-        console.log('event listener change', item);
+        //console.log('event listener change', item);
     });
 
 	$('.select-edit-submit')
@@ -2084,15 +2138,17 @@
 		'submitButton': true,
 		'tmplSubmit': '<button role="submitButton">Apply</button>',
 		'callItemToggle': function (item) {
-			console.log('item changed: value ', item.value, ', isSelected: ', item.selected);
+			//console.log('item changed: value ', item.value, ', isSelected: ', item.selected);
 		}
 	})
 	.on('change', function () {
-		console.log('outside event change', $(this).val());
+		//console.log('outside event change', $(this).val());
 	})
 	.on('itemToggle', function (e, item) {
-		console.log('event listener change', item);
+		//console.log('event listener change', item);
 	});
+
+    $('.select-edit-ajax').selectEdit();
 </script>
 
 </body>

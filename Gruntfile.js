@@ -43,7 +43,9 @@ module.exports = function (grunt) {
 
         uglify: {
             options: {
-                report: 'gzip'
+                report: 'gzip',
+                sourceMap : true,
+                sourceMapName : '<%= opts.filename %>.min.js.map'
             },
             main: {
                 files: {'<%= opts.filename %>.min.js': ['<%= opts.filename %>.js']}
@@ -55,7 +57,7 @@ module.exports = function (grunt) {
                 files: [{
                     expand: true,
                     flatten: true,
-                    src: ['<%= opts.filename %>.min.js'],
+                    src: ['<%= opts.filename %>.min.js', '<%= opts.filename %>.min.js.map'],
                     dest: '<%= opts.demoPath %>'
                 }]
             }
