@@ -938,18 +938,26 @@
          * @returns {Object}
          */
         _renderHiddenItems: function(items) {
-            var html;
+            var self = this,
+                $noCheckedOptions = this.$select.find('option:not(:checked)'),
+                isOption, html;
 
             if (items) {
                 html = '';
 
                 items.forEach(function(item) {
+                    isOption = self.$select.find('option[value="'+ item.value +'"]').length;
+
+                    if (isOption) return true;
+
                     html += '<option value="'+ item.value +'"'+ (item.selected ? ' selected="selected"' : '') +'>'+ item.content +'</option>'
                 });
             }
 
-            if (html) this.$select.html(html);
-            else this.$select.empty();
+            $noCheckedOptions.remove();
+
+            if (html) this.$select.append(html);
+            //else this.$select.empty();
 
             return this;
         },
