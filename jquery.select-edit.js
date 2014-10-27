@@ -134,6 +134,12 @@
             data  : {}
         },
 
+        returnDetailsFormat : {
+            optionValue    : 'id',
+            optionContent  : 'name',
+            optionSelected : 'selected'
+        },
+
 
         classHide            : CLASS + '-hide',
         classForm            : CLASS,
@@ -427,18 +433,22 @@
             this.$group.detach();
         },
 
-        getFullValue: function() {
-            var arr = [];
+        getSelectedDetail: function() {
+            var arr = [],
+                format = this.options.returnDetailsFormat,
+                obj;
 
-            this.$select.find('option').each(function() {
-                arr.push({
-                    value    : this.value,
-                    content  : this.textContent,
-                    selected : this.selected
-                });
+            this.getSelected().each(function() {
+                obj = {};
+                
+                obj[format.optionValue]    = this.value;
+                obj[format.optionContent]  = this.textContent;
+                obj[format.optionSelected] = this.selected;
+
+                arr.push(obj);
             });
 
-            return arr.length ? arr : false;
+            return arr;
         },
 
         /**
