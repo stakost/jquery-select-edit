@@ -141,6 +141,11 @@ $white: #fff;
 
     &.select-edit-drop_show {
         }
+    .select-edit-loader {
+        text-align: center;
+        padding: 5px;
+        display: block;
+        }
     }
     .select-edit__tooltip {
         font-weight: bold;
@@ -166,12 +171,6 @@ $white: #fff;
     padding: 0;
     margin: 0;
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-    
-        .select-edit-loader {
-            text-align: center;
-            padding: 5px;
-            display: block;
-            }
     }
 
     .select-edit__results__item {

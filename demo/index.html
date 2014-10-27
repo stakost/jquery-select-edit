@@ -2065,11 +2065,11 @@
 
 
 <p>Ajax:
-	<select class="select-edit-ajax" autocomplete="off" data-search="true" data-placeholder-title="Ajax" data-ajax='{"url" : "/test"}' data-plural="число,числа,чисел" size="1"></select>
+	<!-- <select class="select-edit-ajax" autocomplete="off" data-search="true" data-placeholder-title="Ajax" data-ajax='{"url" : "/test", "search" : true}' data-plural="число,числа,чисел" size="1"></select> -->
+    <select class="select-edit-ajax" autocomplete="off" data-search="true" data-placeholder-title="Ajax" data-plural="число,числа,чисел" size="1"></select>
 </p>
 
-<!-- <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script> -->
-<script src="jquery.min.js"></script>
+<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 <script src="jquery.select-edit.min.js"></script>
 <script src="jquery.mockjax.js"></script>
 <script>
@@ -2148,7 +2148,16 @@
 		//console.log('event listener change', item);
 	});
 
-    $('.select-edit-ajax').selectEdit();
+    $('.select-edit-ajax').selectEdit({
+        /*'submitButton': true,
+        'tmplSubmit': '<button role="submitButton">Apply</button>'*/
+        ajax : {
+            "url" : "/test", 
+            //"search" : true
+        }
+    });
+
+    console.log( $('.select-edit-submit').selectEdit('getFullValue') );
 </script>
 
 </body>

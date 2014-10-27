@@ -849,11 +849,6 @@
         },
 
         _generateItemsWithAjax: function() {
-            if (this.isOpen) {
-                this.hide();
-                return this;
-            }
-
             if (IS_REQUEST_FORBIDDEN) return this;
 
             IS_REQUEST_FORBIDDEN = setTimeout(function() {
@@ -1077,7 +1072,9 @@
     };
 
     $.fn[_NAME_] = function (option) {
-        return this.each(function () {
+        var result;
+
+        this.each(function () {
             var $this = $(this),
                 data = $this.data(),
                 ctor = $this.data(_NAME_),
@@ -1087,15 +1084,19 @@
                 $this.data(_NAME_, (ctor = new _Constructor(this, options)))
             }
 
-            if (typeof option == 'string' && _isFunction(ctor[option])) {
+            if (typeof option === 'string' && _isFunction(ctor[option])) {
                 if (option.charAt(0) !== '_') {
-                    ctor[option]()
+                    result = ctor[option]();
                 }
                 else {
                     console.warn(_NAME_, 'Do not use private methods!');
                 }
             }
-        })
+
+            if (!result) result = $this;
+        });
+
+        return result;
     };
 
     $.fn[_NAME_].Constructor = _Constructor;
