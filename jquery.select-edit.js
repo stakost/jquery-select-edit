@@ -92,6 +92,10 @@
             $select.prop('multiple', true);
         }
 
+        if (this.isAjaxSearch) {
+            this.options.search = true;
+        }
+
         $select.attr('autocomplete', 'off');
         this.isMultiple = $select.prop('multiple');
         this.isDisabled = $select.prop('disabled');
@@ -812,6 +816,10 @@
             return $items;
         },
 
+        getNotSelected: function() {
+            return this.$select.find('option:not(:checked)');
+        },
+
         /**
          * Возвращает список помеченных на редактирование элементов
          * @returns {*}
@@ -873,6 +881,14 @@
                 inputValue = this.$searchInput && this.$searchInput.val();
 
             IS_REQUEST_FORBIDDEN = clearTimeout(IS_REQUEST_FORBIDDEN);
+
+            if (!inputValue && this.isOpen) {
+                this.getNotSelected().remove();
+                this.isGenerateItems = false;
+                this._generateItems();
+                this._actualizeButtonText(true);
+                return this;
+            }
 
             this._showLoader();
 
@@ -939,7 +955,6 @@
          */
         _renderHiddenItems: function(items) {
             var self = this,
-                $noCheckedOptions = this.$select.find('option:not(:checked)'),
                 isOption, html;
 
             if (items) {
@@ -954,7 +969,7 @@
                 });
             }
 
-            $noCheckedOptions.remove();
+            this.getNotSelected().remove();
 
             if (html) this.$select.append(html);
             //else this.$select.empty();
