@@ -115,7 +115,6 @@
         tmplSubmit     : '<button role="actionButton">submit</button>',
         tmplSearchBox  : '<div></div>',
         tmplSearchInput: '<input name="_search" type="search" />',
-        tmplLoader     : '<strong>Loading...</strong>',
 
         placeholderTitle: null,
 
@@ -861,11 +860,9 @@
         _generateItemsWithAjax: function() {
             if (IS_REQUEST_FORBIDDEN) return this;
 
-            IS_REQUEST_FORBIDDEN = setTimeout(function() {
-                IS_REQUEST_FORBIDDEN = clearTimeout(IS_REQUEST_FORBIDDEN);
-            }, this.options.ajax.delay);
+            IS_REQUEST_FORBIDDEN = clearTimeout(IS_REQUEST_FORBIDDEN);
 
-            this._sendRequest();
+            IS_REQUEST_FORBIDDEN = setTimeout($.proxy(this._sendRequest, this), this.options.ajax.delay);
 
             return this;
         },
@@ -874,6 +871,8 @@
             var opts       = this.options.ajax,
                 inputName  = this.$searchInput && this.$searchInput.attr('name'),
                 inputValue = this.$searchInput && this.$searchInput.val();
+
+            IS_REQUEST_FORBIDDEN = clearTimeout(IS_REQUEST_FORBIDDEN);
 
             this._showLoader();
 
@@ -898,8 +897,9 @@
                 ._renderHiddenItems(result);
 
             if (this.isOpen) this._generateItems();
-            else this.show()._actualizeButtonText(true);
-                
+            else this.show();
+
+            this._actualizeButtonText(true);
         },
 
         _onAjaxError: function(result) {
@@ -908,24 +908,15 @@
         },
 
         _showLoader: function() {
-            var $container = this.isOpen ? this.$group : this.$button;
+            this.$loaderContainer = this.isOpen ? this.$group : this.$button;
 
-            if (!this.$loader) {
-                this.$loader = $(this.options.tmplLoader);
-                this.$loader.addClass(this.options.classLoader);
-            }
-
-            if (!this.isOpen) this.$buttonText.hide();
-
-            this.$loader = this.$loader.prependTo($container);
+            this.$loaderContainer.addClass(this.options.classLoader);
 
             return this;
         },
 
         _hideLoader: function() {
-            if (!this.isOpen) this.$buttonText.show();
-
-            this.$loader.detach();
+            this.$loaderContainer.removeClass(this.options.classLoader);
 
             return this;
         },
