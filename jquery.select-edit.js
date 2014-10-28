@@ -968,7 +968,7 @@
             var self = this,
                 isOption, html;
 
-            if (items) {
+            if (items && _isArray(items)) {
                 html = '';
 
                 items.forEach(function(item) {
