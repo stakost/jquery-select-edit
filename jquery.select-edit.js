@@ -1120,7 +1120,7 @@
                 options = $.extend({}, _Constructor.DEFAULTS, data, typeof option == 'object' && option);
 
             if (options.ajax) {
-               options.ajax = $.extend(AJAX_DEFAULT, options.ajax);
+               options.ajax = $.extend({}, AJAX_DEFAULT, options.ajax);
             }
 
             if (!ctor) {
