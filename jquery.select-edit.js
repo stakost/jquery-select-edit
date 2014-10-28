@@ -49,6 +49,17 @@
             'down': CLASS_DROP_SHOW_DOWN
         },
 
+        AJAX_DEFAULT = {
+            type    : 'GET',
+            delay   : 500,
+            resPath : 'res',
+            load    : true,
+            resFormat : function(result) {
+                if (result.res) return result.res;
+                return result;
+            }
+        },
+
         IS_REQUEST_FORBIDDEN = false,
 
         _toString = Object.prototype.toString,
@@ -74,10 +85,12 @@
         };
 
     _Constructor = function (element, options) {
+        var ajax = options.ajax;
+
         this.$select        = $(element);
         this.options        = options;
-        this.isAjax         = this.options.ajax.load;
-        this.isAjaxSearch   = this.options.ajax.search;
+        this.isAjax         = ajax && ajax.load;
+        this.isAjaxSearch   = ajax && ajax.search;
         this.requestCounter = 0;
 
         var $select = this.$select;
@@ -132,16 +145,7 @@
         search           : null,
         placeholderSearch: 'Search',
 
-        ajax : {
-            type    : 'GET',
-            delay   : 500,
-            resPath : 'res',
-            load    : true,
-            resFormat : function(result) {
-                if (result.res) return result.res;
-                return result;
-            }
-        },
+        ajax : null,
 
         returnDetailsFormat : {
             optionValue    : 'id',
@@ -1113,7 +1117,11 @@
             var $this = $(this),
                 data = $this.data(),
                 ctor = $this.data(_NAME_),
-                options = $.extend(true, {}, _Constructor.DEFAULTS, data, typeof option == 'object' && option);
+                options = $.extend({}, _Constructor.DEFAULTS, data, typeof option == 'object' && option);
+
+            if (options.ajax) {
+               options.ajax = $.extend(AJAX_DEFAULT, options.ajax);
+            }
 
             if (!ctor) {
                 $this.data(_NAME_, (ctor = new _Constructor(this, options)))
