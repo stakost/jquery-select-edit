@@ -76,8 +76,8 @@
     _Constructor = function (element, options) {
         this.$select        = $(element);
         this.options        = options;
-        this.isAjax         = !!this.options.ajax.url;
-        this.isAjaxSearch   = this.isAjax && this.options.ajax.search;
+        this.isAjax         = this.options.ajax.load;
+        this.isAjaxSearch   = this.options.ajax.search;
         this.requestCounter = 0;
 
         var $select = this.$select;
@@ -93,6 +93,7 @@
         }
 
         if (this.isAjaxSearch) {
+            $select.prop('multiple', true);
             this.options.search = true;
         }
 
@@ -132,9 +133,15 @@
         placeholderSearch: 'Search',
 
         ajax : {
-            type  : 'GET',
-            delay : 500,
-            data  : {}
+            type    : 'GET',
+            delay   : 500,
+            resPath : 'res',
+            load    : true,
+            data    : {},
+            resFormat : function(result) {
+                if (result.res) return result.res;
+                return result;
+            }
         },
 
         returnDetailsFormat : {
@@ -692,7 +699,7 @@
 
             this._switchListItem($item, isSelected);
 
-            if (this.isAjax) this._actualizeButtonText(true);
+            if (this.isAjax || this.isAjaxSearch) this._actualizeButtonText(true);
         },
 
         /**
@@ -908,6 +915,10 @@
         _onAjaxSuccess: function(result) {
             this.isGenerateItems = false;
 
+            if (_isFunction(this.options.ajax.resFormat)) {
+                result = this.options.ajax.resFormat(result);
+            }
+
             this
                 ._hideLoader()
                 ._renderHiddenItems(result);
@@ -945,7 +956,7 @@
             if (num === 1) return plural[0];
             if (num > 1 && num < 5) return plural[1];
 
-            return plural[2];
+            return plural[2] || plural[1];
         },
 
         /**
@@ -961,11 +972,11 @@
                 html = '';
 
                 items.forEach(function(item) {
-                    isOption = self.$select.find('option[value="'+ item.value +'"]').length;
+                    isOption = self.$select.find('option[value="'+ item.id +'"]').length;
 
                     if (isOption) return true;
 
-                    html += '<option value="'+ item.value +'"'+ (item.selected ? ' selected="selected"' : '') +'>'+ item.content +'</option>'
+                    html += '<option value="'+ item.id +'"'+ (item.selected ? ' selected="selected"' : '') +'>'+ item.name +'</option>'
                 });
             }
 

@@ -2075,7 +2075,7 @@
 </p>
 
 <p>
-     Ajax loading and ajax search:
+    Ajax search:
     <select class="select-edit-ajax-3" autocomplete="off" data-placeholder-title="Ajax" data-plural="число,числа,чисел" size="1"></select>
 </p>
 
@@ -2084,30 +2084,34 @@
 <script src="jquery.mockjax.js"></script>
 <script>
     var resps = {
-        '1' : [
-            {
-                value : '1',
-                content : 'value - 1'
-            },
-            {
-                value : '2',
-                content : 'value - 2'
-            }
-        ],
-        default : [
-            {
-                value : 'value1',
-                content : '11'
-            },
-            {
-                value : 'value2',
-                content : '22'
-            },
-            {
-                value : 'value3',
-                content : '33'
-            }
-        ]
+        '1' : {
+            res : [
+                {
+                    id : '1',
+                    name : 'value - 1'
+                },
+                {
+                    id : '2',
+                    name : 'value - 2'
+                }
+            ]
+        },
+        default : {
+            res : [
+                {
+                    id : 'value1',
+                    name : '11'
+                },
+                {
+                    id : 'value2',
+                    name : '22'
+                },
+                {
+                    id : 'value3',
+                    name : '33'
+                }
+            ]
+        }
     };
     $.mockjax({
         logging: false,
@@ -2169,7 +2173,8 @@
     $('.select-edit-ajax-3').selectEdit({
         ajax : {
             "url" : "/test",
-            search : true
+            "search" : true,
+            "load" : false
         }
     });
 
