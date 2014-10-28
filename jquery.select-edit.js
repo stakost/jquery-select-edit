@@ -41,12 +41,26 @@
         CLASS_LIST_ITEM_MARKED = CLASS_LIST_ITEM + '_marked',
         CLASS_LIST_ITEM_HOVER = CLASS_LIST_ITEM + '_hover',
         CLASS_LIST_ITEM_SELECTED = CLASS_LIST_ITEM + '_selected',
+        CLASS_LOADER = CLASS + '-loader',
 
         DROP_MARGIN = 5,
         DROP_MODS = {
             'up'  : CLASS_DROP_SHOW_UP,
             'down': CLASS_DROP_SHOW_DOWN
         },
+
+        AJAX_DEFAULT = {
+            type    : 'GET',
+            delay   : 500,
+            resPath : 'res',
+            load    : true,
+            resFormat : function(result) {
+                if (result.res) return result.res;
+                return result;
+            }
+        },
+
+        IS_REQUEST_FORBIDDEN = false,
 
         _toString = Object.prototype.toString,
         _isFunction = function (object) {
@@ -71,14 +85,29 @@
         };
 
     _Constructor = function (element, options) {
-        this.$select = $(element);
-        this.options = options;
+        var ajax = options.ajax;
+
+        this.$select        = $(element);
+        this.options        = options;
+        this.isAjax         = ajax && ajax.load;
+        this.isAjaxSearch   = ajax && ajax.search;
+        this.requestCounter = 0;
 
         var $select = this.$select;
 
         if (!$select.is('select')) {
             console.warn(_NAME_, 'Sorry, only select element!');
             return false;
+        }
+
+        //Дефолт для аякс запросов
+        if (this.isAjax) {
+            $select.prop('multiple', true);
+        }
+
+        if (this.isAjaxSearch) {
+            $select.prop('multiple', true);
+            this.options.search = true;
         }
 
         $select.attr('autocomplete', 'off');
@@ -116,6 +145,15 @@
         search           : null,
         placeholderSearch: 'Search',
 
+        ajax : null,
+
+        returnDetailsFormat : {
+            optionValue    : 'id',
+            optionContent  : 'name',
+            optionSelected : 'selected'
+        },
+
+
         classHide            : CLASS + '-hide',
         classForm            : CLASS,
         classButton          : CLASS_BUTTON,
@@ -134,13 +172,14 @@
         classListitem        : CLASS_LIST_ITEM,
         classListitemHover   : CLASS_LIST_ITEM_HOVER,
         classListitemSelected: CLASS_LIST_ITEM_SELECTED,
+        classLoader          : CLASS_LOADER,
 
         callItemToggle  : null,
         callBeforeChange: null
     };
 
     _Constructor.prototype = {
-        Constructor: _Constructor,
+        constructor: _Constructor,
 
         isOpen         : false,
         isGenerateItems: false,
@@ -149,8 +188,8 @@
          * Инициализация
          */
         initialize: function () {
-            var options = this.options,
-                $select = this.$select;
+            var options            = this.options,
+                $select            = this.$select;
 
             this._initHtml();
             this._hideSelect();
@@ -172,7 +211,7 @@
 
             this.isDisabled && this.disable();
 
-            this.$button.on('click.' + _NAME_ + ' touchend.' + _NAME_, $.proxy(this.toggle, this));
+            this.$button.on('click.' + _NAME_ + ' touchend.' + _NAME_, $.proxy(this._customSelectClickHandler, this));
             this.$submitButton && this.$submitButton.on('click.' + _NAME_, $.proxy(this.submitChanges, this));
 
             $window.on('resize.' + _NAME_, this.updateListPosition.bind(this));
@@ -250,11 +289,18 @@
          * Актуализация кнопки кастомного селекта
          * @private
          */
-        _actualizeButtonText: function () {
-            var text = this.options.placeholderTitle || this._getSelectedText();
+        _actualizeButtonText: function (isPlural) {
+            var text = this.options.placeholderTitle || this._getSelectedText(),
+                selectedOption;
+
+            if (isPlural) {
+                selectedOption = this.getSelected().length;
+                text = selectedOption ? (selectedOption + ' '+ this._nouns(selectedOption)) : text;
+            }
+
             this.$buttonText.text(text || this.$select.attr('placeholder'));
 
-            this.$button.toggleClass(this.options.classButtonEmpty, !text)
+            this.$button.toggleClass(this.options.classButtonEmpty, !text);
         },
 
         /**
@@ -365,6 +411,7 @@
             $document.trigger('event-show.' + _NAME_);
 
             this._generateItems();
+
             this.$group
                 .addClass(this.options.classGroupShow)
                 .appendTo((this.options.appendBody && document.body) || this.$content)
@@ -376,6 +423,8 @@
 
             this.isOpen = true;
             this._eventsGroup();
+
+            return this;
         },
 
         /**
@@ -397,13 +446,32 @@
             this.$group.detach();
         },
 
+        getSelectedDetail: function() {
+            var arr = [],
+                format = this.options.returnDetailsFormat,
+                obj;
+
+            this.getSelected().each(function() {
+                obj = {};
+                
+                obj[format.optionValue]    = this.value;
+                obj[format.optionContent]  = this.textContent;
+                obj[format.optionSelected] = this.selected;
+
+                arr.push(obj);
+            });
+
+            return arr;
+        },
+
         /**
          * Навесить/снять события списка
          * @private
          */
         _eventsGroup: function () {
             var options = this.options,
-                $searchInput = this.$searchInput;
+                $searchInput = this.$searchInput,
+                searchItemsHandler = !this.isAjaxSearch ? this._searchItems : this._generateItemsWithAjax;
 
             if (this.isOpen) {
                 this.$group
@@ -419,7 +487,7 @@
                     .on('click.' + _NAME_ + ' touchend.' + _NAME_, $.proxy(this._clickDocument, this))
                     .on('event-show.' + _NAME_, $.proxy(this.hide, this));
 
-                $searchInput && $searchInput.on('keyup.' + _NAME_, $.proxy(this._searchItems, this));
+                $searchInput && $searchInput.on('keyup.' + _NAME_, $.proxy(searchItemsHandler, this));
             }
             else {
                 this.$group.off('.' + _NAME_);
@@ -427,6 +495,13 @@
                 $searchInput && $searchInput.off('.' + _NAME_);
             }
             this.toggleButton();
+        },
+
+        _customSelectClickHandler: function(e) {
+            if (this.isAjax && this.requestCounter < 1) this._generateItemsWithAjax();
+            else this.toggle();
+
+            return false;
         },
 
         /**
@@ -460,6 +535,7 @@
          */
         _toggleDisable: function (disable) {
             this.$content.toggleClass(CLASS_DISABLED, disable);
+            this.$select.prop('disabled', disable);
         },
 
         /**
@@ -625,6 +701,8 @@
             }
 
             this._switchListItem($item, isSelected);
+
+            if (this.isAjax || this.isAjaxSearch) this._actualizeButtonText(true);
         },
 
         /**
@@ -664,7 +742,6 @@
             }
 
             this._switchOption($item.data('value'), selected);
-            this._actualizeButtonText();
         },
 
         /**
@@ -749,6 +826,10 @@
             return $items;
         },
 
+        getNotSelected: function() {
+            return this.$select.find('option:not(:checked)');
+        },
+
         /**
          * Возвращает список помеченных на редактирование элементов
          * @returns {*}
@@ -792,6 +873,123 @@
                     node.style.display = 'none';
                 }
             })
+        },
+
+        _generateItemsWithAjax: function() {
+            if (IS_REQUEST_FORBIDDEN) return this;
+
+            IS_REQUEST_FORBIDDEN = clearTimeout(IS_REQUEST_FORBIDDEN);
+
+            IS_REQUEST_FORBIDDEN = setTimeout($.proxy(this._sendRequest, this), this.options.ajax.delay);
+
+            return this;
+        },
+
+        _sendRequest: function() {
+            var opts       = this.options.ajax,
+                inputName  = this.$searchInput && this.$searchInput.attr('name'),
+                inputValue = this.$searchInput && this.$searchInput.val();
+
+            IS_REQUEST_FORBIDDEN = clearTimeout(IS_REQUEST_FORBIDDEN);
+
+            if (!inputValue && this.isOpen) {
+                this.getNotSelected().remove();
+                this.isGenerateItems = false;
+                this._generateItems();
+                this._actualizeButtonText(true);
+                return this;
+            }
+
+            this._showLoader();
+
+            if (!opts.data) opts.data = {};
+            if (inputName) opts.data[inputName] =  inputValue;
+
+            opts.success = $.proxy(this._onAjaxSuccess, this);
+            opts.error = $.proxy(this._onAjaxError, this);
+
+            if (!this.requestCounter) this.requestCounter = 1;
+            else ++this.requestCounter;
+
+            $.ajax(opts);
+
+            return this;
+        },
+
+        _onAjaxSuccess: function(result) {
+            this.isGenerateItems = false;
+
+            if (_isFunction(this.options.ajax.resFormat)) {
+                result = this.options.ajax.resFormat(result);
+            }
+
+            this
+                ._hideLoader()
+                ._renderHiddenItems(result);
+
+            if (this.isOpen) this._generateItems();
+            else this.show();
+
+            this._actualizeButtonText(true);
+        },
+
+        _onAjaxError: function(result) {
+            console.warn('Connection error');
+            this._hideLoader();
+        },
+
+        _showLoader: function() {
+            this.$loaderContainer = this.isOpen ? this.$group : this.$button;
+
+            this.$loaderContainer.addClass(this.options.classLoader);
+
+            return this;
+        },
+
+        _hideLoader: function() {
+            this.$loaderContainer.removeClass(this.options.classLoader);
+
+            return this;
+        },
+
+         _nouns: function(num) {
+            if (!this.options.plural) return false;
+
+            var plural = this.options.plural.split(',');
+
+            if (num === 1) return plural[0];
+            if (num > 1 && num < 5) return plural[1];
+
+            return plural[2] || plural[1];
+        },
+
+        /**
+         * Рендерим option, для скрытого селекта, по масиву
+         * @param {Array} items
+         * @returns {Object}
+         */
+        _renderHiddenItems: function(items) {
+            var self = this,
+                isOption, html;
+
+            if (items && _isArray(items)) {
+                html = '';
+
+                items.forEach(function(item) {
+                    isOption = self.$select.find('option[value="'+ item.id +'"]').length;
+
+                    if (isOption) return true;
+
+                    html += '<option value="'+ item.id +'"'+ (item.selected ? ' selected="selected"' : '') +'>'+ item.name +'</option>'
+                });
+            }
+
+            this.getNotSelected().remove();
+
+            if (html) this.$select.append(html);
+            //else this.$select.empty();
+
+            return this;
         },
 
         /**
@@ -913,25 +1111,35 @@
     };
 
     $.fn[_NAME_] = function (option) {
-        return this.each(function () {
+        var result;
+
+        this.each(function () {
             var $this = $(this),
                 data = $this.data(),
                 ctor = $this.data(_NAME_),
                 options = $.extend({}, _Constructor.DEFAULTS, data, typeof option == 'object' && option);
 
+            if (options.ajax) {
+               options.ajax = $.extend({}, AJAX_DEFAULT, options.ajax);
+            }
+
             if (!ctor) {
                 $this.data(_NAME_, (ctor = new _Constructor(this, options)))
             }
 
-            if (typeof option == 'string' && _isFunction(ctor[option])) {
+            if (typeof option === 'string' && _isFunction(ctor[option])) {
                 if (option.charAt(0) !== '_') {
-                    ctor[option]()
+                    result = ctor[option]();
                 }
                 else {
                     console.warn(_NAME_, 'Do not use private methods!');
                 }
             }
-        })
+
+            if (!result) result = $this;
+        });
+
+        return result;
     };
 
     $.fn[_NAME_].Constructor = _Constructor;
