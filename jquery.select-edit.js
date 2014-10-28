@@ -137,7 +137,6 @@
             delay   : 500,
             resPath : 'res',
             load    : true,
-            data    : {},
             resFormat : function(result) {
                 if (result.res) return result.res;
                 return result;
@@ -899,6 +898,7 @@
 
             this._showLoader();
 
+            if (!opts.data) opts.data = {};
             if (inputName) opts.data[inputName] =  inputValue;
 
             opts.success = $.proxy(this._onAjaxSuccess, this);
