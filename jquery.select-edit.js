@@ -105,6 +105,7 @@
             $select.prop('multiple', true);
         }
 
+        //Дефолт для аякс поиска
         if (this.isAjaxSearch) {
             $select.prop('multiple', true);
             this.options.search = true;
@@ -287,6 +288,7 @@
 
         /**
          * Актуализация кнопки кастомного селекта
+         * @params {Boolean} isPlural Отобразить текст селекта в формате колличества выбраных опций
          * @private
          */
         _actualizeButtonText: function (isPlural) {
@@ -446,6 +448,10 @@
             this.$group.detach();
         },
 
+        /**
+         * Получить даные селекта
+         * @returns {Array} arr
+         */
         getSelectedDetail: function() {
             var arr = [],
                 format = this.options.returnDetailsFormat,
@@ -497,7 +503,12 @@
             this.toggleButton();
         },
 
+        /**
+         * Обрабатываем клик по custom seletc
+         * @param {Object} e Объект при обработке DOM ивента
+         */
         _customSelectClickHandler: function(e) {
+            //Делаем только один запрос на сервер, если это загрузка аяксом
             if (this.isAjax && this.requestCounter < 1) this._generateItemsWithAjax();
             else this.toggle();
 
@@ -875,16 +886,22 @@
             })
         },
 
+        /**
+         * Рендерим items для селекта с помощью аякса
+         * @returns {Object} this
+         */
         _generateItemsWithAjax: function() {
-            if (IS_REQUEST_FORBIDDEN) return this;
-
-            IS_REQUEST_FORBIDDEN = clearTimeout(IS_REQUEST_FORBIDDEN);
-
+            //Если запрос делается чаще чем в N период времени, то мы не делаем этот запрос
+            if (IS_REQUEST_FORBIDDEN) IS_REQUEST_FORBIDDEN = clearTimeout(IS_REQUEST_FORBIDDEN);
+            
             IS_REQUEST_FORBIDDEN = setTimeout($.proxy(this._sendRequest, this), this.options.ajax.delay);
 
             return this;
         },
 
+        /**
+         * Делаем запрос на сервер
+         */
         _sendRequest: function() {
             var opts       = this.options.ajax,
                 inputName  = this.$searchInput && this.$searchInput.attr('name'),
@@ -892,6 +909,7 @@
 
             IS_REQUEST_FORBIDDEN = clearTimeout(IS_REQUEST_FORBIDDEN);
 
+            //При поиске аяксом (когда пустой поиск), оставляем отменченные пункты
             if (!inputValue && this.isOpen) {
                 this.getNotSelected().remove();
                 this.isGenerateItems = false;
@@ -908,6 +926,7 @@
             opts.success = $.proxy(this._onAjaxSuccess, this);
             opts.error = $.proxy(this._onAjaxError, this);
 
+            //Считаем запросы к серверу
             if (!this.requestCounter) this.requestCounter = 1;
             else ++this.requestCounter;
 
@@ -952,6 +971,10 @@
             return this;
         },
 
+        /**
+         * Формируем имя item-a в нужном падеже
+         * @param {Number} num
+         */
          _nouns: function(num) {
             if (!this.options.plural) return false;
 
