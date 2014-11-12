@@ -319,6 +319,7 @@
             else {
                 this.show();
             }
+
             return false;
         },
 
@@ -426,6 +427,8 @@
             this.isOpen = true;
             this._eventsGroup();
 
+            this.$select.trigger('onToggle', true);
+
             return this;
         },
 
@@ -446,6 +449,8 @@
             });
 
             this.$group.detach();
+
+            this.$select.trigger('onToggle');
         },
 
         /**
@@ -468,6 +473,11 @@
             });
 
             return arr;
+        },
+
+        on: function() {
+            this.$select.on.apply(this.$select, arguments);
+            return this;
         },
 
         /**
@@ -537,6 +547,22 @@
             this.hide();
             this._toggleDisable(true);
             this.isDisabled = true;
+        },
+
+        /**
+         * Добавить элементы в список
+         * @param {Array} optionsArr
+         */
+        addOptions: function(optionsArr) {
+            this.isGenerateItems = false;
+
+            this._renderHiddenItems(optionsArr, {
+                removeNonSelected: false
+            });
+
+            this._generateItems();
+
+            return this;
         },
 
         /**
@@ -634,17 +660,21 @@
          * @private
          */
         _clickGroup: function (e) {
-            return false;
+            //return false;
         },
 
         /**
          * Клик по документу.
-         * Отловить закрытие списка.
+         * Отловить закрытие списка. Если кликнули не по выпадающему списку селекта
          *
          * @private
          */
-        _clickDocument: function () {
-            this.hide();
+        _clickDocument: function (e) {
+            var isClickOnGroup = !!$(e.target).closest(this.$group).length;
+
+            if (!isClickOnGroup) {
+                this.hide();
+            }
         },
 
         /**
@@ -787,6 +817,10 @@
          */
         getListItems: function () {
             return this.$listItems || $();
+        },
+
+        isEmpty: function() {
+            return !(!!this.getListItems().length);
         },
 
         /**
@@ -989,11 +1023,18 @@
         /**
          * Рендерим option, для скрытого селекта, по масиву
          * @param {Array} items
+         * @param {Object} opts
+         * @param {Boolean} opts.removeNonSelected Удалить не выбраные элементы или нет
          * @returns {Object}
          */
-        _renderHiddenItems: function(items) {
+        _renderHiddenItems: function(items, opts) {
             var self = this,
+                defaultOpts = {
+                    removeNonSelected : true
+                },
                 isOption, html;
+
+            $.extend(defaultOpts, opts || {});
 
             if (items && _isArray(items)) {
                 html = '';
@@ -1007,8 +1048,10 @@
                 });
             }
 
-            this.getNotSelected().remove();
-
+            if (defaultOpts.removeNonSelected) {
+                this.getNotSelected().remove();
+            }
+            
             if (html) this.$select.append(html);
             //else this.$select.empty();
 
@@ -1134,7 +1177,8 @@
     };
 
     $.fn[_NAME_] = function (option) {
-        var result;
+        var argumentsArray = Array.prototype.slice.call(arguments, 1),
+            result;
 
         this.each(function () {
             var $this = $(this),
@@ -1152,7 +1196,7 @@
 
             if (typeof option === 'string' && _isFunction(ctor[option])) {
                 if (option.charAt(0) !== '_') {
-                    result = ctor[option]();
+                    result = ctor[option].apply(ctor, argumentsArray);
                 }
                 else {
                     console.warn(_NAME_, 'Do not use private methods!');
