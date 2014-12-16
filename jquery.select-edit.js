@@ -792,7 +792,9 @@
          * @param force
          * @private
          */
-        _switchOption: function (value, selected) {
+        _switchOption: function (value, selected, config) {
+            config = config || {};
+
             var $select = this.$select,
                 $option = $select.find('option[value="' + value + '"]'),
                 callItemToggle = this.options.callItemToggle,
@@ -806,9 +808,11 @@
 
             _isFunction(callItemToggle) && callItemToggle(triggerData);
 
-            $select
-                .trigger('change')
-                .trigger('itemToggle', triggerData);
+            if (!config.silent) {
+                $select.trigger('change');
+            }
+            
+            $select.trigger('itemToggle', triggerData);
         },
 
         /**
