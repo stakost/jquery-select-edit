@@ -140,6 +140,9 @@
         // вставлять открывающийся список в боди
         appendBody      : false,
 
+        // пирнудительно списко выпадает
+        dropMod         : false,
+
         // use submit button
         submitButton    : false,
 
@@ -354,6 +357,7 @@
                 listHeight = this.$group.outerHeight(),
                 windowHeight = $window.height(),
                 contentHeight = this.$content.outerHeight(),
+                contentWidth = this.$content.outerWidth(),
                 documentScroll = $window.scrollTop(),
                 freeSpace = windowHeight - position.top - contentHeight - DROP_MARGIN,
                 offsetTop = 0,
@@ -373,7 +377,14 @@
 
             if (this.options.appendBody) {
                 position.top += offsetTop;
-                this.$group.offset(position);
+                this.$group
+                        .offset(position)
+                        .outerWidth(contentWidth);
+            }
+
+            // пренудительно заставляем выпадать дроп куда нужно
+            if (this.options.dropMod) {
+                dropMod = this.options.dropMod;
             }
 
             this.setMod(dropMod, DROP_MODS, this.$group);
