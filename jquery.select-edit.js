@@ -140,6 +140,9 @@
         // вставлять открывающийся список в боди
         appendBody      : false,
 
+        // пирнудительно списко выпадает
+        dropMod         : false,
+
         // use submit button
         submitButton    : false,
 
@@ -350,10 +353,15 @@
          * Задает правильную позицию для списка
          */
         updateListPosition: function () {
-            var position = this.$content.offset(),
-                listHeight = this.$group.outerHeight(),
+            var self = this,
+                options = self.options,
+                $content = self.$content,
+                $group = self.$group,
+                position = $content.offset(),
+                listHeight = $group.outerHeight(),
                 windowHeight = $window.height(),
-                contentHeight = this.$content.outerHeight(),
+                contentHeight = $content.outerHeight(),
+                contentWidth = $content.outerWidth(),
                 documentScroll = $window.scrollTop(),
                 freeSpace = windowHeight - position.top - contentHeight - DROP_MARGIN,
                 offsetTop = 0,
@@ -371,12 +379,19 @@
                 dropMod = 'down';
             }
 
-            if (this.options.appendBody) {
+            if (options.appendBody) {
                 position.top += offsetTop;
-                this.$group.offset(position);
+                $group
+                    .offset(position)
+                    .outerWidth(contentWidth);
             }
 
-            this.setMod(dropMod, DROP_MODS, this.$group);
+            // пренудительно заставляем выпадать дроп куда нужно
+            if (options.dropMod) {
+                dropMod = options.dropMod;
+            }
+
+            self.setMod(dropMod, DROP_MODS, $group);
         },
 
         /**
