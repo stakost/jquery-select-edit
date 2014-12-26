@@ -353,11 +353,15 @@
          * Задает правильную позицию для списка
          */
         updateListPosition: function () {
-            var position = this.$content.offset(),
-                listHeight = this.$group.outerHeight(),
+            var self = this,
+                options = self.options,
+                $content = self.$content,
+                $group = self.$group,
+                position = $content.offset(),
+                listHeight = $group.outerHeight(),
                 windowHeight = $window.height(),
-                contentHeight = this.$content.outerHeight(),
-                contentWidth = this.$content.outerWidth(),
+                contentHeight = $content.outerHeight(),
+                contentWidth = $content.outerWidth(),
                 documentScroll = $window.scrollTop(),
                 freeSpace = windowHeight - position.top - contentHeight - DROP_MARGIN,
                 offsetTop = 0,
@@ -375,19 +379,19 @@
                 dropMod = 'down';
             }
 
-            if (this.options.appendBody) {
+            if (options.appendBody) {
                 position.top += offsetTop;
-                this.$group
-                        .offset(position)
-                        .outerWidth(contentWidth);
+                $group
+                    .offset(position)
+                    .outerWidth(contentWidth);
             }
 
             // пренудительно заставляем выпадать дроп куда нужно
-            if (this.options.dropMod) {
-                dropMod = this.options.dropMod;
+            if (options.dropMod) {
+                dropMod = options.dropMod;
             }
 
-            this.setMod(dropMod, DROP_MODS, this.$group);
+            self.setMod(dropMod, DROP_MODS, $group);
         },
 
         /**
