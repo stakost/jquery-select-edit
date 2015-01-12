@@ -2112,6 +2112,19 @@
     <select class="select-edit-ajax-3" autocomplete="off" data-placeholder-title="Ajax" data-plural="число,числа,чисел" size="1"></select>
 </p>
 
+<p>
+    Ajax save:
+    <select class="select-edit-ajax-4" autocomplete="off" data-placeholder-title="Ajax" data-plural="число,числа,чисел" size="1" multiple data-ajax='{"url" : "/test", "save" : "true", "load" : false}'>
+        <option value="1">Россия</option>
+        <option value="2">Украина</option>
+        <option value="12" selected="true">США</option>
+        <option value="22" selected="true">Канада</option>
+        <option value="23" >Беларусь</option>
+        <option value="24" selected="true">Китай</option>
+    </select>
+    Генерирует событие onSave, с аргументом Deffered объект от вызова аякса
+</p>
+
 <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 <script src="jquery.select-edit.min.js"></script>
 <script src="jquery.mockjax.js"></script>
@@ -2210,6 +2223,13 @@
             "load" : false
         }
     });
+
+    var $ajaxSave = $('.select-edit-ajax-4').selectEdit();
+    $ajaxSave.on('onSave', function(ev, dfd) {
+        dfd.always(function(res) {
+            console.log(res);
+        })
+    })
 
     console.log( $('.select-edit-submit').selectEdit('getSelectedDetail') );
 </script>

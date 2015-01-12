@@ -91,6 +91,7 @@
         this.options        = options;
         this.isAjax         = ajax && ajax.load;
         this.isAjaxSearch   = ajax && ajax.search;
+        this.isAjaxSave     = ajax && ajax.save;
         this.requestCounter = 0;
 
         var $select = this.$select;
@@ -260,8 +261,10 @@
          * @private
          */
         _onChangeSelect: function () {
-            this._actualizeListItems();
-            this._actualizeButtonText();
+            this
+                ._actualizeListItems()
+                ._actualizeButtonText();
+
             return true;
         },
 
@@ -287,6 +290,8 @@
                         $(this).addClass(classSelected)
                     }
                 });
+
+            return this;
         },
 
         /**
@@ -306,6 +311,8 @@
             this.$buttonText.text(text || this.$select.attr('placeholder'));
 
             this.$button.toggleClass(this.options.classButtonEmpty, !text);
+
+            return this;
         },
 
         /**
@@ -466,6 +473,8 @@
             this.$group.detach();
 
             this.$select.trigger('onToggle');
+
+            this.save();
         },
 
         /**
@@ -493,6 +502,38 @@
         on: function() {
             this.$select.on.apply(this.$select, arguments);
             return this;
+        },
+
+        /**
+         * Сохранить результат выбора (сохраняем при событии hide)
+         * returns {Object} Deffered
+         * events {Object} onSave, arguemnts [dfd]
+         */
+        save: function(conf) {
+            var self = this,
+                dfd;
+
+            conf = conf || {};
+
+            if (!self.isAjaxSave) {
+                return self;
+            }
+
+            conf.data = self.getSelectedDetail();
+
+            conf = $.extend({}, self.options.ajax, conf);
+
+            dfd = $.ajax(conf);
+
+            self.$loaderContainer.addClass(self.options.classLoader);
+
+            self.$select.trigger('onSave', dfd);
+
+            dfd.always(function() {
+                self.$loaderContainer.removeClass(self.options.classLoader);
+            });
+
+            return self;
         },
 
         /**
