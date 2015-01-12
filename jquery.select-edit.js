@@ -525,13 +525,11 @@
 
             dfd = $.ajax(conf);
 
-            self.$loaderContainer.addClass(self.options.classLoader);
+            self._showLoader();
 
             self.$select.trigger('onSave', dfd);
 
-            dfd.always(function() {
-                self.$loaderContainer.removeClass(self.options.classLoader);
-            });
+            dfd.always($.proxy(self._hideLoader, self));
 
             return self;
         },
