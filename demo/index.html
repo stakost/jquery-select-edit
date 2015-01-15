@@ -2114,13 +2114,27 @@
 
 <p>
     Ajax save:
-    <select class="select-edit-ajax-4" autocomplete="off" data-placeholder-title="Ajax" data-plural="число,числа,чисел" size="1" multiple data-ajax='{"url" : "/test", "save" : "true", "load" : false}'>
+    <select class="select-edit-ajax-4" autocomplete="off" data-plural="число,числа,чисел" size="1" data-ajax='{"url" : "/test", "save" : true, "load" : false, "data": {"a": 100}}'>
+        <option></option>
         <option value="1">Россия</option>
         <option value="2">Украина</option>
-        <option value="12" selected="true">США</option>
-        <option value="22" selected="true">Канада</option>
+        <option value="12">США</option>
+        <option value="22">Канада</option>
         <option value="23" >Беларусь</option>
-        <option value="24" selected="true">Китай</option>
+        <option value="24" selected="selected">Китай</option>
+    </select>
+    Генерирует событие onSave, с аргументом Deffered объект от вызова аякса
+</p>
+
+<p>
+    Ajax save multiple:
+    <select class="select-edit-ajax-5" multiple autocomplete="off" placeholder="Ajax" data-plural="число,числа,чисел" size="1" data-ajax='{"url" : "/test", "save" : true, "load" : false, "data": {"a": 100}}'>
+        <option value="1">Россия</option>
+        <option value="2">Украина</option>
+        <option value="12">США</option>
+        <option value="22">Канада</option>
+        <option value="23" >Беларусь</option>
+        <option value="24" selected="selected">Китай</option>
     </select>
     Генерирует событие onSave, с аргументом Deffered объект от вызова аякса
 </p>
@@ -2226,6 +2240,13 @@
 
     var $ajaxSave = $('.select-edit-ajax-4').selectEdit();
     $ajaxSave.on('onSave', function(ev, dfd) {
+        dfd.always(function(res) {
+            console.log(res);
+        })
+    })
+
+    var $ajaxSave2 = $('.select-edit-ajax-5').selectEdit();
+    $ajaxSave2.on('onSave', function(ev, dfd) {
         dfd.always(function(res) {
             console.log(res);
         })
