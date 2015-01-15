@@ -507,21 +507,27 @@
         /**
          * Сохранить результат выбора (сохраняем при событии hide)
          * returns {Object} Deffered
+         * events {Object} beforeSave, arguemnts [conf] Можна изменить конфиг перед отправкой
          * events {Object} onSave, arguemnts [dfd]
          */
-        save: function(conf) {
+        save: function() {
             var self = this,
+                ajax = self.options.ajax || {},
+                selectDataName = ajax.selectDataName || 'selectedData',
+                conf = {
+                    data: ajax.data || {}
+                },
                 dfd;
-
-            conf = conf || {};
 
             if (!self.isAjaxSave) {
                 return self;
             }
 
-            conf.data = self.getSelectedDetail();
+            conf.data[selectDataName] = self.getSelectedDetail();
 
-            conf = $.extend({}, self.options.ajax, conf);
+            conf = $.extend({}, ajax, conf);
+
+            self.$select.trigger('beforeSave', conf);
 
             dfd = $.ajax(conf);
 
@@ -788,14 +794,18 @@
             var options = this.options,
                 classSelected = options.classListitemSelected,
                 $item = $(e.currentTarget),
-                isSelected = !$item.hasClass(classSelected);
+                isSelected = !$item.hasClass(classSelected),
+                isMultyOrSubmit = !this.isMultiple && !options.submitButton;
 
-            if (!this.isMultiple && !options.submitButton) {
+            if (isMultyOrSubmit) {
                 this.getListItems().removeClass(classSelected);
-                this.hide();
             }
 
             this._switchListItem($item, isSelected);
+
+            if (isMultyOrSubmit) {
+                this.hide();
+            }
 
             if (this.isAjax || this.isAjaxSearch) this._actualizeButtonText(true);
         },
