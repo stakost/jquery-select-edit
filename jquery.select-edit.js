@@ -289,8 +289,8 @@
 
                 $item.removeClass(CLASS_LIST_ITEM_MARKED);
 
-                // почему-то проверка selected в этом методе вызывается позже, чем в _switchOption
-                setTimeout(this._switchOption.bind(this, value, selected));
+                // почему-то проверка selected в этом методе вызывается позже, чем в switchOption
+                setTimeout(this.switchOption.bind(this, value, selected));
                 this._actualizeButtonText();
 
                 this.hide();
@@ -663,7 +663,7 @@
                 return;
             }
 
-            this._switchOption($item.data('value'), selected);
+            this.switchOption($item.data('value'), selected);
             this._actualizeButtonText();
         },
 
@@ -674,7 +674,7 @@
          * @param force
          * @private
          */
-        _switchOption: function (value, selected) {
+        switchOption: function (value, selected) {
             var $select = this.$select,
                 $option = $select.find('option[value="' + value + '"]'),
                 callItemToggle = this.options.callItemToggle,
