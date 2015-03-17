@@ -1,3 +1,5 @@
 .npmignore
 node_modules
 .sass-cache
+*.DB_Store
+*.DS_Store

@@ -141,6 +141,11 @@ $white: #fff;
 
     &.select-edit-drop_show {
         }
+    .select-edit-loader {
+        text-align: center;
+        padding: 5px;
+        display: block;
+        }
     }
     .select-edit__tooltip {
         font-weight: bold;

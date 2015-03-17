@@ -27,6 +27,39 @@
 </p>
 
 <p>
+    Dropdown добавляемый в боди
+    <span style="overflow: hidden; display: inline-block;">
+        <select class="select-edit" autocomplete="off" data-search="true" data-placeholder-search="Устройства" placeholder="Dropdown into body" data-append-body="true" data-tooltip="All devices">
+            <option value="1">iPhone</option>
+            <option value="2">iPod</option>
+            <option value="3">Android</option>
+            <option value="4">Windows</option>
+        </select>
+    </span>
+
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+    <span style="overflow: hidden; display: inline-block;">
+        <select class="select-edit" autocomplete="off" data-search="true" data-placeholder-search="Устройства" placeholder="Dropdown into body" data-tooltip="All devices" data-append-body="true">
+            <option value="1">iPhone</option>
+            <option value="2">iPod</option>
+            <option value="3">Android</option>
+            <option value="4">Windows</option>
+        </select>
+    </span>
+</p>
+
+<p>
+    Пренудительно выпадает список вверх
+    <select class="select-edit" autocomplete="off" data-search="true" data-placeholder-search="Устройства" placeholder="Dropdown into body" data-drop-mod="up" data-tooltip="All devices">
+        <option value="1">iPhone</option>
+        <option value="2">iPod</option>
+        <option value="3">Android</option>
+        <option value="4">Windows</option>
+    </select>
+</p>
+
+<p>
 Селект с 1993 записью:
     <select class="select-edit" multiple autocomplete="off" data-placeholder-search="Страны" placeholder="Choose a Country...">
 
@@ -2053,30 +2086,120 @@
 	</select>
 </p>
 <p>Has submit button multiple:
-	<select class="select-edit-submit" autocomplete="off" data-placeholder-title="Всегда есть" multiple size="1">
-		<option value="1">Россия</option>
-		<option value="2">Украина</option>
-		<option value="12" selected="true">США</option>
-		<option value="22" selected="true">Канада</option>
-		<option value="23" >Беларусь</option>
-		<option value="24" selected="true">Китай</option>
-	</select>
+    <select class="select-edit-submit" autocomplete="off" data-placeholder-title="Всегда есть" multiple size="1">
+        <option value="1">Россия</option>
+        <option value="2">Украина</option>
+        <option value="12" selected="true">США</option>
+        <option value="22" selected="true">Канада</option>
+        <option value="23" >Беларусь</option>
+        <option value="24" selected="true">Китай</option>
+    </select>
+</p>
+
+
+<p>
+    Ajax loading:
+	<select class="select-edit-ajax-1" autocomplete="off" data-placeholder-title="Ajax"  data-plural="число,числа,чисел" size="1"></select>
+</p>
+
+<p>
+     Ajax loading and simple search:
+    <select class="select-edit-ajax-2" autocomplete="off" data-placeholder-title="Ajax" data-plural="число,числа,чисел" size="1"></select>
+</p>
+
+<p>
+    Ajax search:
+    <select class="select-edit-ajax-3" autocomplete="off" data-placeholder-title="Ajax" data-plural="число,числа,чисел" size="1"></select>
+</p>
+
+<p>
+    Ajax save:
+    <select class="select-edit-ajax-4" autocomplete="off" data-plural="число,числа,чисел" size="1" data-ajax='{"url" : "/test", "save" : true, "load" : false, "data": {"a": 100}}'>
+        <option></option>
+        <option value="1">Россия</option>
+        <option value="2">Украина</option>
+        <option value="12">США</option>
+        <option value="22">Канада</option>
+        <option value="23" >Беларусь</option>
+        <option value="24" selected="selected">Китай</option>
+    </select>
+    Генерирует событие onSave, с аргументом Deffered объект от вызова аякса
+</p>
+
+<p>
+    Ajax save multiple:
+    <select class="select-edit-ajax-5" multiple autocomplete="off" placeholder="Ajax" data-plural="число,числа,чисел" size="1" data-ajax='{"url" : "/test", "save" : true, "load" : false, "data": {"a": 100}}'>
+        <option value="1">Россия</option>
+        <option value="2">Украина</option>
+        <option value="12">США</option>
+        <option value="22">Канада</option>
+        <option value="23" >Беларусь</option>
+        <option value="24" selected="selected">Китай</option>
+    </select>
+    Генерирует событие onSave, с аргументом Deffered объект от вызова аякса
 </p>
 
 <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 <script src="jquery.select-edit.min.js"></script>
+<script src="jquery.mockjax.js"></script>
+<script>
+    var resps = {
+        '1' : {
+            res : [
+                {
+                    id : '1',
+                    name : 'value - 1'
+                },
+                {
+                    id : '2',
+                    name : 'value - 2'
+                }
+            ]
+        },
+        default : {
+            res : [
+                {
+                    id : 'value1',
+                    name : '11'
+                },
+                {
+                    id : 'value2',
+                    name : '22'
+                },
+                {
+                    id : 'value3',
+                    name : '33'
+                }
+            ]
+        }
+    };
+    $.mockjax({
+        logging: false,
+        responseTime : 500,
+        url: "/test",
+        response: function(req) {
+            if (!req.data || !req.data._search) {
+                this.responseText = this.responseText = resps.default;
+                return false;
+            }
+
+            if (resps[req.data._search]) this.responseText = resps[req.data._search];
+            else this.responseText = resps.default;
+        }
+    });
+</script>
 <script>
     $('.select-edit')
     .selectEdit({
         'callItemToggle': function (item) {
-            console.log('item changed: value ', item.value, ', isSelected: ', item.selected);
+            //console.log('item changed: value ', item.value, ', isSelected: ', item.selected);
         }
     })
     .on('change', function () {
-        console.log('outside event change', $(this).val());
+        //console.log('outside event change', $(this).val());
     })
     .on('itemToggle', function (e, item) {
-        console.log('event listener change', item);
+        //console.log('event listener change', item);
     });
 
 	$('.select-edit-submit')
@@ -2084,15 +2207,52 @@
 		'submitButton': true,
 		'tmplSubmit': '<button role="submitButton">Apply</button>',
 		'callItemToggle': function (item) {
-			console.log('item changed: value ', item.value, ', isSelected: ', item.selected);
+			//console.log('item changed: value ', item.value, ', isSelected: ', item.selected);
 		}
 	})
 	.on('change', function () {
-		console.log('outside event change', $(this).val());
+		//console.log('outside event change', $(this).val());
 	})
 	.on('itemToggle', function (e, item) {
-		console.log('event listener change', item);
+		//console.log('event listener change', item);
 	});
+
+    $('.select-edit-ajax-1').selectEdit({
+        ajax : {
+            "url" : "/test"
+        }
+    });
+
+    $('.select-edit-ajax-2').selectEdit({
+        search : true,
+        ajax : {
+            "url" : "/test"
+        }
+    });
+
+    $('.select-edit-ajax-3').selectEdit({
+        ajax : {
+            "url" : "/test",
+            "search" : true,
+            "load" : false
+        }
+    });
+
+    var $ajaxSave = $('.select-edit-ajax-4').selectEdit();
+    $ajaxSave.on('onSave', function(ev, dfd) {
+        dfd.always(function(res) {
+            console.log(res);
+        })
+    })
+
+    var $ajaxSave2 = $('.select-edit-ajax-5').selectEdit();
+    $ajaxSave2.on('onSave', function(ev, dfd) {
+        dfd.always(function(res) {
+            console.log(res);
+        })
+    })
+
+    console.log( $('.select-edit-submit').selectEdit('getSelectedDetail') );
 </script>
 
 </body>
