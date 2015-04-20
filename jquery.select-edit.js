@@ -560,7 +560,7 @@
                     );
                 $document
                     .on('keydown.' + _NAME_, $.proxy(this._keydownGroup, this))
-                    .on('click.' + _NAME_ + ' touchend.' + _NAME_, $.proxy(this._clickDocument, this))
+                    .on('mousedown.' + _NAME_ + ' touchend.' + _NAME_, $.proxy(this._clickDocument, this))
                     .on('event-show.' + _NAME_, $.proxy(this.hide, this));
 
                 $searchInput && $searchInput.on('keyup.' + _NAME_, $.proxy(searchItemsHandler, this));

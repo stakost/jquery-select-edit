@@ -7,6 +7,7 @@
 - submitButton
 - search
 - placeholderSearch
+- dropMod = up
 - ajax
 	- ajax.search {Boolean} false (multiple only)
 	- ajax.load {Boolean} true (multiple only)
