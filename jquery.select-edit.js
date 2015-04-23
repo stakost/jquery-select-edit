@@ -730,8 +730,14 @@
          * @private
          */
         _clickDocument: function (e) {
-            var isClickOnGroup = !!$(e.target).closest(this.$group).length;
+            var isClickOnGroup = !!$(e.target).closest(this.$group).length,
+                isClickOnSelect = !!$(e.target).closest(this.$content).length;
 
+            
+            if (isClickOnSelect) {
+                return true;
+            }
+            
             if (!isClickOnGroup) {
                 this.hide();
             }
