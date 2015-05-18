@@ -553,7 +553,7 @@
                 this.$group
                     .on('touchmove.' + _NAME_, $.proxy(this._touchmoveGroup, this))
                     .on('click.' + _NAME_ + ' touchend.' + _NAME_, $.proxy(this._clickGroup, this))
-                    .on('click.' + _NAME_ + ' touchend.' + _NAME_, '.' + options.classListitem, $.proxy(this._clickListItem, this))
+                    .on('mousedown.' + _NAME_ + ' touchend.' + _NAME_, '.' + options.classListitem, $.proxy(this._clickListItem, this))
                     .on('mouseover.' + _NAME_ + ' mouseout.' + _NAME_ + ' touchend.' + _NAME_,
                         '.' + options.classListitem,
                         $.proxy(this._hoverItem, this)
