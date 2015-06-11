@@ -541,6 +541,16 @@
         },
 
         /**
+         * Заменяет классы на кнопке
+         * @param classes
+         */
+        replaceBtnClass: function (classes) {
+            this.$content
+                .removeClass()
+                .addClass(classes);
+        },
+
+        /**
          * Навесить/снять события списка
          * @private
          */
