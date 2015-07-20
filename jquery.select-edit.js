@@ -1,5 +1,5 @@
 /**
- * Select-edit 1.0.14
+ * Select-edit 1.0.15
  * jQuery plugin for custom select editable.
  *
  * Full source at https://github.com/stakost/jquery-select-edit
@@ -622,24 +622,26 @@
         /**
          * Добавить элементы в список
          * @param {Array} optionsArr
-         * @param {Boolean} clearSelect Очистить весь селект, или оставить выбранные элементы
+         * @param {Object} opts Смотри _renderHiddenItems метод
          */
-        addOptions: function(optionsArr, clearSelect) {
+        addOptions: function(optionsArr, opts) {
             var self = this;
 
             if (!$.isArray(optionsArr)) {
                 return false;
             }
 
-            this.isGenerateItems = false;
+            opts = $.extend({
+                removeNonSelected: false
+            }, opts || {});
 
-            self._renderHiddenItems(optionsArr, {
-                removeNonSelected: !!clearSelect
-            });
+            self.isGenerateItems = false;
 
-            this._generateItems();
+            self
+                ._renderHiddenItems(optionsArr, opts)
+                ._generateItems();
 
-            return this;
+            return self;
         },
 
 
@@ -648,8 +650,13 @@
          * @param {Array} optionsArr
          */
         update: function(optionsArr) {
-            return this.addOptions(optionsArr, true);
+            return this
+                        .addOptions(optionsArr, {
+                            removeAll: true
+                        })
+                        ._actualizeButtonText();
         },
+
 
         /**
          * Toggle disable class
@@ -1124,13 +1131,14 @@
          * Рендерим option, для скрытого селекта, по масиву
          * @param {Array} items
          * @param {Object} opts
-         * @param {Boolean} opts.removeNonSelected Удалить не выбраные элементы или нет
+         * @param {Boolean} [opts.removeNonSelected=ture] Удалить не выбраные элементы
          * @returns {Object}
          */
         _renderHiddenItems: function(items, opts) {
             var self = this,
                 defaultOpts = {
-                    removeNonSelected : true
+                    removeNonSelected : true,
+                    removeAll: false
                 },
                 format = this.options.returnDetailsFormat,
                 isOption, html, value, content, selected;
@@ -1153,12 +1161,15 @@
                 });
             }
 
-            if (defaultOpts.removeNonSelected) {
+            if (defaultOpts.removeNonSelected && !defaultOpts.removeAll) {
                 this.getNotSelected().remove();
+            }
+
+            if (defaultOpts.removeAll) {
+                this.$select.empty();
             }
             
             if (html) this.$select.append(html);
-            //else this.$select.empty();
 
             return this;
         },
