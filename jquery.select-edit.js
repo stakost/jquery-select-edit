@@ -659,14 +659,6 @@
 
 
         /**
-         * Обновить селект
-         * @param {Array} optionsArr
-         */
-        update: function(optionsArr) {
-            return this.addOptions(optionsArr, true);
-        },
-
-        /**
          * Toggle disable class
          * @param disable
          * @private
