@@ -1155,7 +1155,7 @@
   
                     isOption = self.$select.find('option[value="'+ value +'"]').length;
 
-                    if (isOption) return true;
+                    if (isOption && !defaultOpts.removeAll) return true;
 
                     html += '<option value="'+ value +'"'+ (item.selected ? ' selected="selected"' : '') +'>'+ content +'</option>'
                 });
