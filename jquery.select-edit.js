@@ -1,5 +1,5 @@
 /**
- * Select-edit 1.0.14
+ * Select-edit 1.0.15
  * jQuery plugin for custom select editable.
  *
  * Full source at https://github.com/stakost/jquery-select-edit
