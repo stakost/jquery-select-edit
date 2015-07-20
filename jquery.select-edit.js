@@ -563,7 +563,7 @@
                 this.$group
                     .on('touchmove.' + _NAME_, $.proxy(this._touchmoveGroup, this))
                     .on('click.' + _NAME_ + ' touchend.' + _NAME_, $.proxy(this._clickGroup, this))
-                    .on('click.' + _NAME_ + ' touchend.' + _NAME_, '.' + options.classListitem, $.proxy(this._clickListItem, this))
+                    .on('mousedown.' + _NAME_ + ' touchend.' + _NAME_, '.' + options.classListitem, $.proxy(this._clickListItem, this))
                     .on('mouseover.' + _NAME_ + ' mouseout.' + _NAME_ + ' touchend.' + _NAME_,
                         '.' + options.classListitem,
                         $.proxy(this._hoverItem, this)
@@ -622,17 +622,33 @@
         /**
          * Добавить элементы в список
          * @param {Array} optionsArr
+         * @param {Boolean} clearSelect Очистить весь селект, или оставить выбранные элементы
          */
-        addOptions: function(optionsArr) {
+        addOptions: function(optionsArr, clearSelect) {
+            var self = this;
+
+            if (!$.isArray(optionsArr)) {
+                return false;
+            }
+
             this.isGenerateItems = false;
 
-            this._renderHiddenItems(optionsArr, {
-                removeNonSelected: false
+            self._renderHiddenItems(optionsArr, {
+                removeNonSelected: !!clearSelect
             });
 
             this._generateItems();
 
             return this;
+        },
+
+
+        /**
+         * Обновить селект
+         * @param {Array} optionsArr
+         */
+        update: function(optionsArr) {
+            return this.addOptions(optionsArr, true);
         },
 
         /**
@@ -1116,7 +1132,8 @@
                 defaultOpts = {
                     removeNonSelected : true
                 },
-                isOption, html;
+                format = this.options.returnDetailsFormat,
+                isOption, html, value, content, selected;
 
             $.extend(defaultOpts, opts || {});
 
@@ -1124,11 +1141,15 @@
                 html = '';
 
                 items.forEach(function(item) {
-                    isOption = self.$select.find('option[value="'+ item.id +'"]').length;
+                    value = item[format.optionValue];
+                    content = item[format.optionContent];
+                    selected = item[format.optionSelected];
+  
+                    isOption = self.$select.find('option[value="'+ value +'"]').length;
 
                     if (isOption) return true;
 
-                    html += '<option value="'+ item.id +'"'+ (item.selected ? ' selected="selected"' : '') +'>'+ item.name +'</option>'
+                    html += '<option value="'+ value +'"'+ (item.selected ? ' selected="selected"' : '') +'>'+ content +'</option>'
                 });
             }
 
