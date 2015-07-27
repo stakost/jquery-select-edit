@@ -1018,10 +1018,12 @@
             this.$listItems.each2(function (i, $item) {
                 var node = $item[0],
                     text = node.innerHTML;
+
+                searchValue = searchValue.replace(/\\/g, '');
+
                 if (~text.search(new RegExp(searchValue, 'i'))) {
                     node.style.display = '';
-                }
-                else {
+                } else {
                     node.style.display = 'none';
                 }
             })
