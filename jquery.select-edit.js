@@ -708,44 +708,54 @@
          * @param next
          * @private
          */
-        _navGroupItem: function (next) {
-            var options = this.options,
-                classHover = options.classListitemHover,
-                $items = this.getListItems(),
-                $itemHover = this._getListItemsHover($items),
+        _navGroupItem: function (direction) {
+            var self = this,
+
+                up = direction === false,
+                down = direction === true,
+                notHiddenSelector = ':not(:hidden)',
+
+                $items = self.getListItems(),
+                $itemHover = self._getListItemsHover($items),
+                $itemsVisible = $items.filter(notHiddenSelector),
+                $itemsVisibleFirst = $itemsVisible.first(),
+                $itemsVisibleLast = $itemsVisible.last(),
+                $prev = $itemHover.prev(notHiddenSelector),
+                $next = $itemHover.next(notHiddenSelector),
                 $current,
+
                 _listHeight,
                 _listScrollTop,
                 _currentHeight,
                 _currentPosition;
 
-            if (next) {
-                $current = ($itemHover.length && $itemHover.nextAll(':not(:hidden):first'));
-                $current = ($current.length && $current) || $items.filter(':not(:hidden):first');
-            }
-            else {
-                $current = ($itemHover.length && $itemHover.prevAll(':not(:hidden):first'));
-                $current = ($current.length && $current) || $items.filter(':not(:hidden):last');
+            if (up) {
+                $current = $itemHover.length && $prev.length ? $prev : $itemsVisibleLast;
+            } else {
+                $current = $itemHover.length && $next.length ? $next : $itemsVisibleFirst;
             }
 
+            //Если по каким то причинам нету ни одного пункта в селекте
             if (!$current || !$current.length) {
                 return false;
             }
 
-            _listHeight = this.$list.height();
-            _listScrollTop = this.$list.scrollTop();
+            //Скролим список если нужно
+            _listHeight = self.$list.height();
+            _listScrollTop = self.$list.scrollTop();
             _currentPosition = $current.position();
             _currentPosition = _currentPosition.top;
 
             if (_listHeight < _currentPosition + $current.outerHeight()) {
-                this.$list.scrollTop(_listScrollTop + (_currentPosition + $current.outerHeight() - _listHeight))
-            }
-            else if (_currentPosition < 0) {
-                this.$list.scrollTop(_listScrollTop + (_currentPosition))
+                self.$list.scrollTop(_listScrollTop + (_currentPosition + $current.outerHeight() - _listHeight))
+            } else if (_currentPosition < 0) {
+                self.$list.scrollTop(_listScrollTop + (_currentPosition))
             }
 
-            $itemHover.removeClass(classHover);
-            $current.addClass(classHover);
+            $itemHover.removeClass(self.options.classListitemHover);
+            $current.addClass(self.options.classListitemHover);
+
+            return self;
         },
 
         /**
