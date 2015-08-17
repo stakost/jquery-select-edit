@@ -728,6 +728,10 @@
                 $current = ($current.length && $current) || $items.filter(':not(:hidden):last');
             }
 
+            if (!$current || !$current.length) {
+                return false;
+            }
+
             _listHeight = this.$list.height();
             _listScrollTop = this.$list.scrollTop();
             _currentPosition = $current.position();
