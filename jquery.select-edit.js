@@ -717,6 +717,7 @@
 
                 $items = self.getListItems(),
                 $itemHover = self._getListItemsHover($items),
+                isItemHover = !!$itemHover.length,
                 $itemsVisible = $items.filter(notHiddenSelector),
                 $itemsVisibleFirst = $itemsVisible.first(),
                 $itemsVisibleLast = $itemsVisible.last(),
@@ -730,9 +731,9 @@
                 _currentPosition;
 
             if (up) {
-                $current = $itemHover.length && $prev.length ? $prev : $itemsVisibleLast;
+                $current = isItemHover && $prev.length ? $prev : $itemsVisibleLast;
             } else {
-                $current = $itemHover.length && $next.length ? $next : $itemsVisibleFirst;
+                $current = isItemHover && $next.length ? $next : $itemsVisibleFirst;
             }
 
             //Если по каким то причинам нету ни одного пункта в селекте
