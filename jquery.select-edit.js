@@ -147,6 +147,9 @@
         // use submit button
         submitButton    : false,
 
+        // всегда закрывать дропдаун при выборе
+        clickClose      : false,
+
         search           : null,
         placeholderSearch: 'Search',
 
@@ -697,7 +700,7 @@
                     break;
                 case KEY_CODE_ENTER:
                     this._toggleListItemHover();
-                    !this.isMultiple && !options.submitButton && this.hide();
+                    (!this.isMultiple || options.clickClose) && !options.submitButton && this.hide();
 
                     break;
             }
@@ -834,7 +837,7 @@
                 classSelected = options.classListitemSelected,
                 $item = $(e.currentTarget),
                 isSelected = !$item.hasClass(classSelected),
-                isMultyOrSubmit = !this.isMultiple && !options.submitButton;
+                isMultyOrSubmit = (!this.isMultiple || options.clickClose) && !options.submitButton;
 
             if (isMultyOrSubmit) {
                 this.getListItems().removeClass(classSelected);
