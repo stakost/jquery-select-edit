@@ -905,32 +905,39 @@
 
         /**
          * Переключить состояние у селекта
-         * @param value
-         * @param selected
-         * @param force
-         * @private
+         * @param {String} value
+         * @param {Boolean} selected
+         * @param {Object} config
+         * @param {Boolean} config.silent Change select option without `change` event
          */
         switchOption: function (value, selected, config) {
             config = config || {};
 
             var $select = this.$select,
-                $option = $select.find('option[value="' + value + '"]'),
                 callItemToggle = this.options.callItemToggle,
+                $option = $select.find('option[value="' + value + '"]'),
+                optionCurrentState = $option.prop('selected'),
+                isCurrentStateAsSelected = optionCurrentState === selected,
                 triggerData = {
-                    value   : value,
+                    value: value,
                     selected: selected
                 };
 
             $option.prop('selected', selected);
-            !selected && $option.removeAttr('selected');
+
+            if (config.silent) {
+                this._onChangeSelect();
+                return;
+            }
+
+            //Тригерить только когда переданый параметр selected не равен текущему состоянию опции
+            !isCurrentStateAsSelected && $select.trigger('change');
 
             _isFunction(callItemToggle) && callItemToggle(triggerData);
-
-            if (!config.silent) {
-                $select.trigger('change');
-            }
             
             $select.trigger('itemToggle', triggerData);
+
+            return this;
         },
 
         /**
