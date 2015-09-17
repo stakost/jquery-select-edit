@@ -1,5 +1,5 @@
 /**
- * Select-edit 1.0.15
+ * Select-edit 1.0.17
  * jQuery plugin for custom select editable.
  *
  * Full source at https://github.com/stakost/jquery-select-edit
@@ -711,40 +711,55 @@
          * @param next
          * @private
          */
-        _navGroupItem: function (next) {
-            var options = this.options,
-                classHover = options.classListitemHover,
-                $items = this.getListItems(),
-                $itemHover = this._getListItemsHover($items),
+        _navGroupItem: function (direction) {
+            var self = this,
+
+                up = direction === false,
+                down = direction === true,
+                notHiddenSelector = ':not(:hidden)',
+
+                $items = self.getListItems(),
+                $itemHover = self._getListItemsHover($items),
+                isItemHover = !!$itemHover.length,
+                $itemsVisible = $items.filter(notHiddenSelector),
+                $itemsVisibleFirst = $itemsVisible.first(),
+                $itemsVisibleLast = $itemsVisible.last(),
+                $prev = $itemHover.prev(notHiddenSelector),
+                $next = $itemHover.next(notHiddenSelector),
                 $current,
+
                 _listHeight,
                 _listScrollTop,
                 _currentHeight,
                 _currentPosition;
 
-            if (next) {
-                $current = ($itemHover.length && $itemHover.nextAll(':not(:hidden):first'));
-                $current = ($current.length && $current) || $items.filter(':not(:hidden):first');
-            }
-            else {
-                $current = ($itemHover.length && $itemHover.prevAll(':not(:hidden):first'));
-                $current = ($current.length && $current) || $items.filter(':not(:hidden):last');
+            if (up) {
+                $current = isItemHover && $prev.length ? $prev : $itemsVisibleLast;
+            } else {
+                $current = isItemHover && $next.length ? $next : $itemsVisibleFirst;
             }
 
-            _listHeight = this.$list.height();
-            _listScrollTop = this.$list.scrollTop();
+            //Если по каким то причинам нету ни одного пункта в селекте
+            if (!$current || !$current.length) {
+                return false;
+            }
+
+            //Скролим список если нужно
+            _listHeight = self.$list.height();
+            _listScrollTop = self.$list.scrollTop();
             _currentPosition = $current.position();
             _currentPosition = _currentPosition.top;
 
             if (_listHeight < _currentPosition + $current.outerHeight()) {
-                this.$list.scrollTop(_listScrollTop + (_currentPosition + $current.outerHeight() - _listHeight))
-            }
-            else if (_currentPosition < 0) {
-                this.$list.scrollTop(_listScrollTop + (_currentPosition))
+                self.$list.scrollTop(_listScrollTop + (_currentPosition + $current.outerHeight() - _listHeight))
+            } else if (_currentPosition < 0) {
+                self.$list.scrollTop(_listScrollTop + (_currentPosition))
             }
 
-            $itemHover.removeClass(classHover);
-            $current.addClass(classHover);
+            $itemHover.removeClass(self.options.classListitemHover);
+            $current.addClass(self.options.classListitemHover);
+
+            return self;
         },
 
         /**
@@ -893,32 +908,39 @@
 
         /**
          * Переключить состояние у селекта
-         * @param value
-         * @param selected
-         * @param force
-         * @private
+         * @param {String} value
+         * @param {Boolean} selected
+         * @param {Object} config
+         * @param {Boolean} config.silent Change select option without `change` event
          */
         switchOption: function (value, selected, config) {
             config = config || {};
 
             var $select = this.$select,
-                $option = $select.find('option[value="' + value + '"]'),
                 callItemToggle = this.options.callItemToggle,
+                $option = $select.find('option[value="' + value + '"]'),
+                optionCurrentState = $option.prop('selected'),
+                isCurrentStateAsSelected = optionCurrentState === selected,
                 triggerData = {
-                    value   : value,
+                    value: value,
                     selected: selected
                 };
 
             $option.prop('selected', selected);
-            !selected && $option.removeAttr('selected');
+
+            if (config.silent) {
+                this._onChangeSelect();
+                return;
+            }
+
+            //Тригерить только когда переданый параметр selected не равен текущему состоянию опции
+            !isCurrentStateAsSelected && $select.trigger('change');
 
             _isFunction(callItemToggle) && callItemToggle(triggerData);
-
-            if (!config.silent) {
-                $select.trigger('change');
-            }
             
             $select.trigger('itemToggle', triggerData);
+
+            return this;
         },
 
         /**
