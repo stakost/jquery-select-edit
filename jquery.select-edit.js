@@ -131,6 +131,7 @@
         tmplList       : '<div role="list"></div>',
         tmplListbox    : '<div role="listbox"></div>',
         tmplListitem   : '<div role="listitem"%attrs%>%text%</div>',
+        tmplCurrent    : '',
         tmplSubmitBox  : '<div></div>',
         tmplSubmit     : '<button role="actionButton">submit</button>',
         tmplSearchBox  : '<div></div>',
@@ -149,6 +150,11 @@
 
         // всегда закрывать дропдаун при выборе
         clickClose      : false,
+
+        // Переменные, которые ищутся в каждом option и заменяют своими значениями
+        // из data-[vars[i]] переменные в шаблонах вида %vars[i]%
+        // Передаются списком, разделенным запятой ','
+        vars            : '',
 
         search           : null,
         placeholderSearch: 'Search',
@@ -311,7 +317,7 @@
                 text = selectedOption ? (selectedOption + ' '+ this._nouns(selectedOption)) : text;
             }
 
-            this.$buttonText.text(text || this.$select.attr('placeholder'));
+            this.$buttonText.html(text || this.$select.attr('placeholder'));
 
             this.$button.toggleClass(this.options.classButtonEmpty, !text);
 
@@ -491,7 +497,7 @@
 
             this.getSelected().each(function() {
                 obj = {};
-                
+
                 obj[format.optionValue]    = this.value;
                 obj[format.optionContent]  = this.textContent;
                 obj[format.optionSelected] = this.selected;
@@ -784,11 +790,11 @@
             var isClickOnGroup = !!$(e.target).closest(this.$group).length,
                 isClickOnSelect = !!$(e.target).closest(this.$content).length;
 
-            
+
             if (isClickOnSelect) {
                 return true;
             }
-            
+
             if (!isClickOnGroup) {
                 this.hide();
             }
@@ -937,7 +943,7 @@
             !isCurrentStateAsSelected && $select.trigger('change');
 
             _isFunction(callItemToggle) && callItemToggle(triggerData);
-            
+
             $select.trigger('itemToggle', triggerData);
 
             return this;
@@ -974,10 +980,36 @@
          * @private
          */
         _getSelectedText: function () {
-            var text = '';
-            this.getSelected().each(function () {
-                text += (text ? ', ' : '') + $(this).text();
+            var options = this.options,
+                text = '',
+                tmplCurrent = options['tmplCurrent'],
+                selected = this.getSelected();
+
+            selected && selected.length && selected.each(function () {
+                var item = this,
+                    $item = $(item);
+
+                if (tmplCurrent && options['vars']) {
+                    var tmplText = '',
+
+                        vars = options['vars'].split(',');
+
+                    $(vars).each2(function () {
+                        if ($item.data(this)) {
+                            tmplText = tmplCurrent.replace('%text%', $item.text());
+                            tmplText = tmplText.replace('%' + this + '%', $item.data(this));
+
+                        } else {
+                            tmplText = $item.text();
+                        }
+                    });
+
+                    text += (text ? ', ' : '') + tmplText;
+                } else {
+                    text += (text ? ', ' : '') + $item.text();
+                }
             });
+
             return text;
         },
 
@@ -1061,7 +1093,7 @@
         _generateItemsWithAjax: function() {
             //Если запрос делается чаще чем в N период времени, то мы не делаем этот запрос
             if (IS_REQUEST_FORBIDDEN) IS_REQUEST_FORBIDDEN = clearTimeout(IS_REQUEST_FORBIDDEN);
-            
+
             IS_REQUEST_FORBIDDEN = setTimeout($.proxy(this._sendRequest, this), this.options.ajax.delay);
 
             return this;
@@ -1179,7 +1211,7 @@
                     value = item[format.optionValue];
                     content = item[format.optionContent];
                     selected = item[format.optionSelected];
-  
+
                     isOption = self.$select.find('option[value="'+ value +'"]').length;
 
                     if (isOption && !defaultOpts.removeAll) return true;
@@ -1195,7 +1227,7 @@
             if (defaultOpts.removeAll) {
                 this.$select.empty();
             }
-            
+
             if (html) this.$select.append(html);
 
             return this;
@@ -1269,9 +1301,14 @@
             template = tmp.innerHTML;
 
             $childs.each2(function () {
-                var text = this.innerHTML,
+                var $this = $(this),
+                    text = this.innerHTML,
                     value = this.value,
-                    itemHtml = template;
+                    itemHtml = template,
+
+                    vars = options['vars']
+                        ? options['vars'].split(',')
+                        : '';
 
                 if (!text) {
                     return true;
@@ -1279,6 +1316,16 @@
 
                 itemHtml = itemHtml.replace('%attrs%', ' data-value="' + value + '"');
                 itemHtml = itemHtml.replace('%text%', text);
+
+                if (vars) {
+                    $(vars).each2(function () {
+                        if (!$this.data(this)) {
+                            return;
+                        }
+
+                        itemHtml = itemHtml.replace('%' + this + '%', $this.data(this));
+                    });
+                }
 
                 html += itemHtml;
             });

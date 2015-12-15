@@ -2139,6 +2139,29 @@
     Генерирует событие onSave, с аргументом Deffered объект от вызова аякса
 </p>
 
+<p>
+    Передача кастомных переменных и кастомных шаблонов элементов списка и текущего элемента
+    <select id="operator"
+            class="select-edit"
+            name="operator"
+            autocomplete="off"
+
+            data-tmpl-listitem='<div role="listitem"%attrs%><img class="select-edit__list-img" src="images/%icon%.png"> %text%</div>'
+
+            data-tmpl-current='<span><img class="select-edit__selected-img" src="images/%icon%.png"></span>'
+            data-vars="icon"
+            data-class-button="select-edit__select"
+            data-class-form="select-edit select-edit_primary select-edit_fit select-edit_normalized"
+            data-class-group="select-edit-drop select-edit-drop_wide"
+            data-search="true">
+        <option></option>
+
+        <option data-icon="checkered12" selected value="checkered12">checkered12</option>
+        <option data-icon="checking1" value="checking1">checking1</option>
+        <option data-icon="clock118" value="clock118">clock118</option>
+    </select>
+</p>
+
 <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 <script src="jquery.select-edit.min.js"></script>
 <script src="jquery.mockjax.js"></script>

@@ -209,3 +209,14 @@ $white: #fff;
     .select-edit__search-input {
         width: 100%;
         }
+
+.select-edit__selected-img {
+    display: inline-block;
+    width: 30px;
+    vertical-align: middle;
+    }
+.select-edit__list-img {
+    display: inline-block;
+    width: 20px;
+    vertical-align: middle;
+    }
