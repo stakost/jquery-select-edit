@@ -8,6 +8,7 @@
 - search
 - placeholderSearch
 - dropMod = up
+- vars
 
 - classHide
 - classForm
@@ -28,6 +29,18 @@
 - classListitemHover
 - classListitemSelected
 - classLoader
+
+- tmplContent
+- tmplGroup
+- tmplTooltip
+- tmplList
+- tmplListbox
+- tmplListitem
+- tmplCurrent
+- tmplSubmitBox
+- tmplSubmit
+- tmplSearchBox
+- tmplSearchInput
 
 - ajax
 	- ajax.search {Boolean} false (multiple only)
